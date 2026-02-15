@@ -68,6 +68,10 @@ export class User {
     return this._props.email;
   }
 
+  get passwordHash(): string {
+    return this._props.passwordHash;
+  }
+
   get createdAt(): Date {
     return this._props.createdAt ?? new Date();
   }
