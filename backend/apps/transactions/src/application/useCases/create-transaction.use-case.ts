@@ -34,7 +34,10 @@ export class CreateTransactionUseCase {
 
   // TODO: treat race condition to avoid duplicate transactions
   async validateOperation(input: CreateTransactionInput): Promise<void> {
-    if (!(await this.userProvider.verifyUserExists(input.userId))) {
+    const doesUserExist = await this.userProvider.verifyUserExists(
+      input.userId,
+    );
+    if (!doesUserExist) {
       throw new EntityNotFoundError('User');
     }
 
@@ -42,7 +45,7 @@ export class CreateTransactionUseCase {
       const currentBalance = await this.transactionRepository.calculateBalance(
         input.userId,
       );
-      if (currentBalance < input.amount) {
+      if (currentBalance < Amount.create(input.amount).cents) {
         throw new InsufficientFundsError();
       }
     }
