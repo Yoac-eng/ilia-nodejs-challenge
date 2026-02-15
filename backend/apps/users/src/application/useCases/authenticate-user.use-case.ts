@@ -1,8 +1,10 @@
+import { Inject, Injectable } from '@nestjs/common';
+
 import { User } from '../../domain/entities/user.entity';
 import { InvalidCredentialsError } from '../../domain/errors/invalid-credentials.error';
-import { IHashProvider } from '../../domain/interfaces/providers/hash.provider.interface';
-import { ITokenProvider } from '../../domain/interfaces/providers/token.provider.interface';
-import { IUserRepository } from '../../domain/interfaces/repositories/user.repository.interface';
+import type { IHashProvider } from '../../domain/interfaces/providers/hash.provider.interface';
+import type { ITokenProvider } from '../../domain/interfaces/providers/token.provider.interface';
+import type { IUserRepository } from '../../domain/interfaces/repositories/user.repository.interface';
 import { Email } from '../../domain/value-objects/email.value-object';
 
 export interface AuthenticateUserInput {
@@ -15,11 +17,12 @@ export interface AuthenticateUserOutput {
   accessToken: string;
 }
 
+@Injectable()
 export class AuthenticateUserUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly hashProvider: IHashProvider,
-    private readonly tokenProvider: ITokenProvider,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('IHashProvider') private readonly hashProvider: IHashProvider,
+    @Inject('ITokenProvider') private readonly tokenProvider: ITokenProvider,
   ) {}
 
   async execute(input: AuthenticateUserInput): Promise<AuthenticateUserOutput> {

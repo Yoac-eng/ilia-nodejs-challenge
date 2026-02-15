@@ -1,16 +1,20 @@
+import { Inject, Injectable } from '@nestjs/common';
+
 import { EntityNotFoundError } from '../../domain/errors/entity-not-found.error';
-import { IUserProvider } from '../../domain/interfaces/providers/user.provider.interface';
-import { ITransactionRepository } from '../../domain/interfaces/repositories/transaction.repository.interface';
+import type { IUserProvider } from '../../domain/interfaces/providers/user.provider.interface';
+import type { ITransactionRepository } from '../../domain/interfaces/repositories/transaction.repository.interface';
 import { Amount } from '../../domain/value-objects/amount.value-object';
 
-interface GetBalanceInput {
+export interface GetBalanceInput {
   userId: string;
 }
 
+@Injectable()
 export class GetBalanceUseCase {
   constructor(
+    @Inject('ITransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    private readonly userProvider: IUserProvider,
+    @Inject('IUserProvider') private readonly userProvider: IUserProvider,
   ) {}
 
   async execute(input: GetBalanceInput): Promise<Amount> {

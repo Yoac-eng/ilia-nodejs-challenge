@@ -1,7 +1,9 @@
+import { Inject, Injectable } from '@nestjs/common';
+
 import { User } from '../../domain/entities/user.entity';
 import { EmailAlreadyInUseError } from '../../domain/errors/email-already-in-use.error';
-import { IHashProvider } from '../../domain/interfaces/providers/hash.provider.interface';
-import { IUserRepository } from '../../domain/interfaces/repositories/user.repository.interface';
+import type { IHashProvider } from '../../domain/interfaces/providers/hash.provider.interface';
+import type { IUserRepository } from '../../domain/interfaces/repositories/user.repository.interface';
 import { Email } from '../../domain/value-objects/email.value-object';
 
 export interface CreateUserInput {
@@ -11,10 +13,11 @@ export interface CreateUserInput {
   password: string;
 }
 
+@Injectable()
 export class CreateUserUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly hashProvider: IHashProvider,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('IHashProvider') private readonly hashProvider: IHashProvider,
   ) {}
 
   async execute(input: CreateUserInput): Promise<User> {

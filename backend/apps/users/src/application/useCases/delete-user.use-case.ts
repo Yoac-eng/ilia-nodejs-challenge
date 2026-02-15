@@ -1,25 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { User } from '../../domain/entities/user.entity';
 import { EntityNotFoundError } from '../../domain/errors/entity-not-found.error';
 import type { IUserRepository } from '../../domain/interfaces/repositories/user.repository.interface';
 
-export interface GetUserByIdInput {
+export interface DeleteUserInput {
   id: string;
 }
 
 @Injectable()
-export class GetUserByIdUseCase {
+export class DeleteUserUseCase {
   constructor(
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
   ) {}
 
-  async execute(input: GetUserByIdInput): Promise<User> {
+  async execute(input: DeleteUserInput): Promise<void> {
     const user = await this.userRepository.findById(input.id);
     if (!user) {
       throw new EntityNotFoundError('User');
     }
 
-    return user;
+    await this.userRepository.delete(input.id);
   }
 }

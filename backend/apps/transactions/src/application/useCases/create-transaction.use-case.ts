@@ -1,22 +1,26 @@
+import { Inject, Injectable } from '@nestjs/common';
+
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/enum/transaction-type.enum';
 import { EntityNotFoundError } from '../../domain/errors/entity-not-found.error';
 import { InsufficientFundsError } from '../../domain/errors/insufficient-funds.error';
-import { IUserProvider } from '../../domain/interfaces/providers/user.provider.interface';
-import { ITransactionRepository } from '../../domain/interfaces/repositories/transaction.repository.interface';
+import type { IUserProvider } from '../../domain/interfaces/providers/user.provider.interface';
+import type { ITransactionRepository } from '../../domain/interfaces/repositories/transaction.repository.interface';
 import { Amount } from '../../domain/value-objects/amount.value-object';
 
-interface CreateTransactionInput {
+export interface CreateTransactionInput {
   userId: string;
   type: TransactionType;
   amount: number;
   idempotencyKey: string;
 }
 
+@Injectable()
 export class CreateTransactionUseCase {
   constructor(
+    @Inject('ITransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    private readonly userProvider: IUserProvider,
+    @Inject('IUserProvider') private readonly userProvider: IUserProvider,
   ) {}
 
   async execute(input: CreateTransactionInput): Promise<Transaction> {
