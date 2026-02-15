@@ -5,5 +5,5 @@ export interface ITransactionRepository {
   create(transaction: Transaction): Promise<Transaction>;
   findById(id: string): Promise<Transaction | null>;
   findByUserId(userId: string, type?: TransactionType): Promise<Transaction[]>;
-  calculateBalance(userId: string): Promise<number>;
+  calculateBalance(userId: string): Promise<bigint>;
 }
