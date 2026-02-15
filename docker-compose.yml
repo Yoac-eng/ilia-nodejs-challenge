@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Users Service
+  postgres-users:
+    image: postgres:16-alpine
+    container_name: ilia-postgres-users
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ilia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ilia123}
+      POSTGRES_DB: ${POSTGRES_DB_USERS:-ilia_users}
+    ports:
+      - "${POSTGRES_USERS_PORT:-5432}:5432"
+    volumes:
+      - postgres-users-data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+
+  # PostgreSQL for Transactions Service
+  postgres-transactions:
+    image: postgres:16-alpine
+    container_name: ilia-postgres-transactions
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ilia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ilia123}
+      POSTGRES_DB: ${POSTGRES_DB_TRANSACTIONS:-ilia_transactions}
+    ports:
+      - "${POSTGRES_TRANSACTIONS_PORT:-5433}:5432"
+    volumes:
+      - postgres-transactions-data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ilia-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ilia-network
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ilia-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-ilia}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-ilia123}
+    ports:
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"   # AMQP port
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672" # Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - ilia-network
+
+  # Users Microservice
+  users-service:
+    build:
+      context: .
+      dockerfile: apps/users/Dockerfile
+    container_name: ilia-users-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      port: ${USERS_PORT:-3002}
+      DATABASE_URL_USERS: postgresql://${POSTGRES_USER:-ilia}:${POSTGRES_PASSWORD:-ilia123}@postgres-users:5432/${POSTGRES_DB_USERS:-ilia_users}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-ilia}:${RABBITMQ_PASSWORD:-ilia123}@rabbitmq:5672
+    ports:
+      - "${USERS_PORT:-3002}:3002"
+    networks:
+      - ilia-network
+    depends_on:
+      - postgres-users
+      - redis
+
+  # Transactions Microservice
+  transactions-service:
+    build:
+      context: .
+      dockerfile: apps/transactions/Dockerfile
+    container_name: ilia-transactions-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      port: ${TRANSACTIONS_PORT:-3001}
+      DATABASE_URL_TRANSACTIONS: postgresql://${POSTGRES_USER:-ilia}:${POSTGRES_PASSWORD:-ilia123}@postgres-transactions:5432/${POSTGRES_DB_TRANSACTIONS:-ilia_transactions}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-ilia}:${RABBITMQ_PASSWORD:-ilia123}@rabbitmq:5672
+      USERS_SERVICE_URL: http://users-service:3002
+    ports:
+      - "${TRANSACTIONS_PORT:-3001}:3001"
+    networks:
+      - ilia-network
+    depends_on:
+      - postgres-transactions
+      - redis
+      - rabbitmq
+      - users-service
+
+networks:
+  ilia-network:
+    driver: bridge
+    name: ilia-network
+
+volumes:
+  postgres-users-data:
+    name: ilia-postgres-users-data
+  postgres-transactions-data:
+    name: ilia-postgres-transactions-data
+  redis-data:
+    name: ilia-redis-data
+  rabbitmq-data:
+    name: ilia-rabbitmq-data

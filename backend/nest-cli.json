@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/ilia-nodejs-challenge/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/ilia-nodejs-challenge/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/ilia-nodejs-challenge",
+  "projects": {
+    "users": {
+      "type": "application",
+      "root": "apps/users",
+      "entryFile": "main",
+      "sourceRoot": "apps/users/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/users/tsconfig.app.json"
+      }
+    },
+    "ilia-nodejs-challenge": {
+      "type": "application",
+      "root": "apps/ilia-nodejs-challenge",
+      "entryFile": "main",
+      "sourceRoot": "apps/ilia-nodejs-challenge/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ilia-nodejs-challenge/tsconfig.app.json"
+      }
+    },
+    "transactions": {
+      "type": "application",
+      "root": "apps/transactions",
+      "entryFile": "main",
+      "sourceRoot": "apps/transactions/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/transactions/tsconfig.app.json"
+      }
+    }
+  }
+}
