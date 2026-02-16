@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 
 import { AuthenticateUserUseCase } from './application/useCases/authenticate-user.use-case';
@@ -6,10 +7,11 @@ import { CreateUserUseCase } from './application/useCases/create-user.use-case';
 import { DeleteUserUseCase } from './application/useCases/delete-user.use-case';
 import { GetUserByIdUseCase } from './application/useCases/get-user-by-id.use-case';
 import { UpdateUserUseCase } from './application/useCases/update-user.use-case';
+import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
+import { UsersController } from './controllers/users.controller';
 import { BcryptHashProvider } from './infra/providers/bcrypt-hash.provider';
 import { JwtTokenProvider } from './infra/providers/jwt-token.provider';
 import { PrismaUserRepository } from './infra/repositories/prisma-user.repository';
-import { UsersController } from './controllers/users.controller';
 
 @Module({
   imports: [
@@ -39,6 +41,10 @@ import { UsersController } from './controllers/users.controller';
     {
       provide: 'ITokenProvider',
       useExisting: JwtTokenProvider,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
 })

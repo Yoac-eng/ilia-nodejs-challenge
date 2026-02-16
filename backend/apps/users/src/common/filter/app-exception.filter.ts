@@ -3,6 +3,7 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
+  HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { ZodError } from 'zod';
@@ -48,6 +49,42 @@ export class AppExceptionFilter implements ExceptionFilter {
   private mapException(
     exception: unknown,
   ): Omit<ErrorResponse, 'timestamp' | 'path'> {
+    if (exception instanceof HttpException) {
+      const statusCode = exception.getStatus();
+      const response = exception.getResponse();
+
+      if (typeof response === 'string') {
+        return {
+          statusCode,
+          message: response,
+          error: this.getHttpErrorLabel(statusCode),
+        };
+      }
+
+      if (this.isRecord(response)) {
+        const message = response.message;
+        const error = response.error;
+        return {
+          statusCode,
+          message: Array.isArray(message)
+            ? message.join(', ')
+            : typeof message === 'string'
+              ? message
+              : exception.message,
+          error:
+            typeof error === 'string'
+              ? error
+              : this.getHttpErrorLabel(statusCode),
+        };
+      }
+
+      return {
+        statusCode,
+        message: exception.message,
+        error: this.getHttpErrorLabel(statusCode),
+      };
+    }
+
     if (exception instanceof EntityNotFoundError) {
       return {
         statusCode: HttpStatus.NOT_FOUND,
@@ -114,5 +151,13 @@ export class AppExceptionFilter implements ExceptionFilter {
       message: 'Internal server error.',
       error: 'Internal Server Error',
     };
+  }
+
+  private getHttpErrorLabel(statusCode: number): string {
+    return HttpStatus[statusCode] ?? 'Http Error';
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
   }
 }

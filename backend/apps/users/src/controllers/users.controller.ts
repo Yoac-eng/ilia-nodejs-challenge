@@ -16,6 +16,8 @@ import { CreateUserUseCase } from '../application/useCases/create-user.use-case'
 import { DeleteUserUseCase } from '../application/useCases/delete-user.use-case';
 import { GetUserByIdUseCase } from '../application/useCases/get-user-by-id.use-case';
 import { UpdateUserUseCase } from '../application/useCases/update-user.use-case';
+import { InternalOnly } from '../common/auth/auth-mode.decorator';
+import { Public } from '../common/auth/public.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 import { type CreateUserDto, createUserSchema } from './dtos/create-user.dto';
@@ -34,6 +36,7 @@ export class UsersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Public()
   async createUser(
     @Body(new ZodValidationPipe(createUserSchema)) input: CreateUserDto,
   ) {
@@ -43,6 +46,7 @@ export class UsersController {
 
   @Post('authenticate')
   @HttpCode(HttpStatus.OK)
+  @Public()
   async authenticate(
     @Body(new ZodValidationPipe(loginSchema)) input: LoginDto,
   ) {
@@ -72,5 +76,15 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.deleteUserUseCase.execute({ id });
+  }
+
+  @Get(':id/exists')
+  @HttpCode(HttpStatus.OK)
+  @InternalOnly()
+  async checkUserExists(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ exists: boolean }> {
+    const user = await this.getUserByIdUseCase.execute({ id });
+    return { exists: !!user };
   }
 }
