@@ -16,9 +16,9 @@ model Transaction {
   id           String   @id
   userId       String   @map("user_id") @db.VarChar
   type         String   @map("type") @db.VarChar
-  description  String   @map("description") @db.VarChar
+  description  String?   @map("description") @db.VarChar
   amountCents      BigInt      @map("amount_cents") @db.BigInt
-  idempotencyKey String   @unique @map("idempotency_key") @db.VarChar
+  idempotencyKey String?  @unique @map("idempotency_key") @db.VarChar
   createdAt    DateTime @map("created_at") @db.Timestamp
 
   @@map("transactions")
