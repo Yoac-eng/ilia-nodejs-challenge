@@ -14,7 +14,8 @@ export class GetBalanceUseCase {
   constructor(
     @Inject('ITransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    @Inject('IUserProvider') private readonly userProvider: IUserProvider,
+    @Inject('IUserProvider')
+    private readonly userProvider: IUserProvider,
   ) {}
 
   async execute(input: GetBalanceInput): Promise<Amount> {

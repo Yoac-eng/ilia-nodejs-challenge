@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 
 import { AuthenticateUserUseCase } from '../application/useCases/authenticate-user.use-case';
 import { Public } from '../common/auth/public.decorator';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ZodValidationPipe } from '../common/pipe/zod-validation.pipe';
 
 import { type LoginDto, loginSchema } from './dtos/login.dto';
 
