@@ -18,7 +18,8 @@ import { GetUserByIdUseCase } from '../application/useCases/get-user-by-id.use-c
 import { UpdateUserUseCase } from '../application/useCases/update-user.use-case';
 import { InternalOnly } from '../common/auth/auth-mode.decorator';
 import { Public } from '../common/auth/public.decorator';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ZodValidationPipe } from '../common/pipe/zod-validation.pipe';
+import { EntityNotFoundError } from '../domain/errors/entity-not-found.error';
 
 import { type CreateUserDto, createUserSchema } from './dtos/create-user.dto';
 import { type UpdateUserDto, updateUserSchema } from './dtos/update-user.dto';
@@ -76,7 +77,15 @@ export class UsersController {
   async checkUserExists(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<{ exists: boolean }> {
-    const user = await this.getUserByIdUseCase.execute({ id });
-    return { exists: !!user };
+    try {
+      await this.getUserByIdUseCase.execute({ id });
+      return { exists: true };
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        return { exists: false };
+      }
+
+      throw error;
+    }
   }
 }

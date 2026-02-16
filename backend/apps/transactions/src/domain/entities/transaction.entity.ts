@@ -8,7 +8,7 @@ interface TransactionProps {
   type: TransactionType;
   description?: string;
   amount: Amount;
-  idempotencyKey: string;
+  idempotencyKey?: string;
   createdAt?: Date;
 }
 
@@ -47,10 +47,10 @@ export class Transaction {
   public toJson(): Record<string, unknown> {
     return {
       id: this._id,
+      userId: this._props.userId,
       type: this._props.type,
       description: this._props.description,
-      amount: this._props.amount.toString(),
-      idempotencyKey: this._props.idempotencyKey,
+      amount: Number(this._props.amount.cents),
       createdAt: this._props.createdAt,
     };
   }
@@ -63,6 +63,10 @@ export class Transaction {
     return this._props.type;
   }
 
+  get userId(): string {
+    return this._props.userId;
+  }
+
   get description(): string | undefined {
     return this._props.description;
   }
@@ -71,7 +75,7 @@ export class Transaction {
     return this._props.amount;
   }
 
-  get idempotencyKey(): string {
+  get idempotencyKey(): string | undefined {
     return this._props.idempotencyKey;
   }
 

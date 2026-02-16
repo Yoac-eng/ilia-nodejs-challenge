@@ -12,7 +12,8 @@ export interface CreateTransactionInput {
   userId: string;
   type: TransactionType;
   amount: number;
-  idempotencyKey: string;
+  idempotencyKey?: string;
+  description?: string;
 }
 
 @Injectable()
@@ -31,6 +32,7 @@ export class CreateTransactionUseCase {
       type: input.type,
       amount: Amount.create(input.amount),
       idempotencyKey: input.idempotencyKey,
+      description: input.description,
     });
 
     return await this.transactionRepository.create(transaction);
