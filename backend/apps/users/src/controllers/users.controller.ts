@@ -13,6 +13,7 @@ import {
 
 import { CreateUserUseCase } from '../application/useCases/create-user.use-case';
 import { DeleteUserUseCase } from '../application/useCases/delete-user.use-case';
+import { GetAllUsersUseCase } from '../application/useCases/get-all-users.use-case';
 import { GetUserByIdUseCase } from '../application/useCases/get-user-by-id.use-case';
 import { UpdateUserUseCase } from '../application/useCases/update-user.use-case';
 import { InternalOnly } from '../common/auth/auth-mode.decorator';
@@ -26,6 +27,7 @@ import { type UpdateUserDto, updateUserSchema } from './dtos/update-user.dto';
 export class UsersController {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly getAllUsersUseCase: GetAllUsersUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
@@ -39,6 +41,12 @@ export class UsersController {
   ) {
     const user = await this.createUserUseCase.execute(input);
     return user.toJson();
+  }
+
+  @Get()
+  async getAllUsers() {
+    const users = await this.getAllUsersUseCase.execute();
+    return users.map((user) => user.toJson());
   }
 
   @Get(':id')

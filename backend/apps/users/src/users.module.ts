@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthenticateUserUseCase } from './application/useCases/authenticate-user.use-case';
 import { CreateUserUseCase } from './application/useCases/create-user.use-case';
 import { DeleteUserUseCase } from './application/useCases/delete-user.use-case';
+import { GetAllUsersUseCase } from './application/useCases/get-all-users.use-case';
 import { GetUserByIdUseCase } from './application/useCases/get-user-by-id.use-case';
 import { UpdateUserUseCase } from './application/useCases/update-user.use-case';
 import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
@@ -25,6 +26,7 @@ import { PrismaUserRepository } from './infra/repositories/prisma-user.repositor
   providers: [
     CreateUserUseCase,
     AuthenticateUserUseCase,
+    GetAllUsersUseCase,
     GetUserByIdUseCase,
     UpdateUserUseCase,
     DeleteUserUseCase,
