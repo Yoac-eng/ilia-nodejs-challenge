@@ -5,6 +5,7 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { ZodError } from 'zod';
 
@@ -24,12 +25,15 @@ interface ErrorResponse {
 
 @Catch()
 export class AppExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AppExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
     const mapped = this.mapException(exception);
+    this.logException(exception, mapped.statusCode, request.url);
 
     const body: ErrorResponse = {
       statusCode: mapped.statusCode,
@@ -159,5 +163,30 @@ export class AppExceptionFilter implements ExceptionFilter {
 
   private isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
+  }
+
+  private logException(
+    exception: unknown,
+    statusCode: number,
+    path: string,
+  ): void {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
+    const errorName =
+      exception instanceof Error ? exception.name : 'UnknownError';
+    const message =
+      exception instanceof Error ? exception.message : String(exception);
+    const stack = exception instanceof Error ? exception.stack : undefined;
+    const logMessage = `[${statusCode}] ${errorName}: ${message} (${path})`;
+
+    // 5xx are unexpected failures; 4xx are usually client/domain flow issues.
+    if (statusCode >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(logMessage, stack);
+      return;
+    }
+
+    this.logger.warn(logMessage);
   }
 }

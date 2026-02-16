@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 export const updateUserSchema = z
   .object({
-    firstName: z
+    first_name: z
       .string()
       .min(1, 'First name cannot be empty')
       .max(255, 'First name is too long')
       .optional(),
-    lastName: z
+    last_name: z
       .string()
       .min(1, 'Last name cannot be empty')
       .max(255, 'Last name is too long')
@@ -20,6 +20,11 @@ export const updateUserSchema = z
   })
   .refine((data) => Object.values(data).some((value) => value !== undefined), {
     message: 'At least one field must be provided for update',
-  });
+  })
+  .transform((data) => ({
+    firstName: data.first_name,
+    lastName: data.last_name,
+    password: data.password,
+  }));
 
 export type UpdateUserDto = z.infer<typeof updateUserSchema>;

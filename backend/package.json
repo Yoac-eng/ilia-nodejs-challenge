@@ -13,6 +13,8 @@
     "db:users:studio": "prisma studio --schema=apps/users/prisma/schema.prisma",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
+    "start:dev:users": "nest start users --watch",
+    "start:dev:transactions": "nest start transactions --watch",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/ilia-nodejs-challenge/main",
