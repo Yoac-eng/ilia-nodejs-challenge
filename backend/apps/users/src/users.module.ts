@@ -8,6 +8,7 @@ import { DeleteUserUseCase } from './application/useCases/delete-user.use-case';
 import { GetUserByIdUseCase } from './application/useCases/get-user-by-id.use-case';
 import { UpdateUserUseCase } from './application/useCases/update-user.use-case';
 import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
+import { AuthController } from './controllers/auth.controller';
 import { UsersController } from './controllers/users.controller';
 import { BcryptHashProvider } from './infra/providers/bcrypt-hash.provider';
 import { JwtTokenProvider } from './infra/providers/jwt-token.provider';
@@ -20,7 +21,7 @@ import { PrismaUserRepository } from './infra/repositories/prisma-user.repositor
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, AuthController],
   providers: [
     CreateUserUseCase,
     AuthenticateUserUseCase,

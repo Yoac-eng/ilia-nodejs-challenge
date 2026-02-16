@@ -11,7 +11,6 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { AuthenticateUserUseCase } from '../application/useCases/authenticate-user.use-case';
 import { CreateUserUseCase } from '../application/useCases/create-user.use-case';
 import { DeleteUserUseCase } from '../application/useCases/delete-user.use-case';
 import { GetUserByIdUseCase } from '../application/useCases/get-user-by-id.use-case';
@@ -21,14 +20,12 @@ import { Public } from '../common/auth/public.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 import { type CreateUserDto, createUserSchema } from './dtos/create-user.dto';
-import { type LoginDto, loginSchema } from './dtos/login.dto';
 import { type UpdateUserDto, updateUserSchema } from './dtos/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
-    private readonly authenticateUserUseCase: AuthenticateUserUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
@@ -42,19 +39,6 @@ export class UsersController {
   ) {
     const user = await this.createUserUseCase.execute(input);
     return user.toJson();
-  }
-
-  @Post('authenticate')
-  @HttpCode(HttpStatus.OK)
-  @Public()
-  async authenticate(
-    @Body(new ZodValidationPipe(loginSchema)) input: LoginDto,
-  ) {
-    const output = await this.authenticateUserUseCase.execute(input);
-    return {
-      user: output.user.toJson(),
-      accessToken: output.accessToken,
-    };
   }
 
   @Get(':id')

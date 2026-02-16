@@ -12,6 +12,11 @@ export const updateUserSchema = z
       .min(1, 'Last name cannot be empty')
       .max(255, 'Last name is too long')
       .optional(),
+    email: z
+      .string()
+      .email('Invalid email format')
+      .max(254, 'Email is too long')
+      .optional(),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters long')
@@ -24,6 +29,7 @@ export const updateUserSchema = z
   .transform((data) => ({
     firstName: data.first_name,
     lastName: data.last_name,
+    email: data.email,
     password: data.password,
   }));
 
