@@ -7,6 +7,10 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "db:users:generate": "prisma generate --schema=apps/users/prisma/schema.prisma",
+    "db:users:migrate:dev": "prisma migrate dev --config apps/users/prisma.config.ts",
+    "db:users:migrate:deploy": "prisma migrate deploy --config apps/users/prisma.config.ts",
+    "db:users:studio": "prisma studio --schema=apps/users/prisma/schema.prisma",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -56,6 +60,7 @@
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
     "jest": "^30.0.0",
+    "prisma": "^7.2.0",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",

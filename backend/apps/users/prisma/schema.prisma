@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/@generated/clients/users"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id
+  firstName    String   @map("first_name") @db.VarChar
+  lastName     String   @map("last_name") @db.VarChar
+  email        String   @unique @db.VarChar
+  passwordHash String   @map("password_hash") @db.VarChar
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp
+
+  @@map("users")
+}
+
