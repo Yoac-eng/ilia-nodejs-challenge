@@ -1,29 +1,19 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { auth } from "@/auth";
 
-const AUTH_TOKEN_KEY = "auth_token";
+// this works as a middleware to protect the routes based on user's session status
+export default auth((req) => {
+  const isLoggedIn = !!req.auth;
+  const isAuthRoute = req.nextUrl.pathname.startsWith('/login') || req.nextUrl.pathname.startsWith('/register');
 
-const authRoutes = new Set(["/login", "/register"]);
-
-// middleware to proxy the requests
-export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token = request.cookies.get(AUTH_TOKEN_KEY)?.value;
-  const isAuthRoute = authRoutes.has(pathname);
-
-  if (!token && !isAuthRoute) {
-    const loginUrl = new URL("/login", request.url);
-    return NextResponse.redirect(loginUrl);
+  if (!isLoggedIn && !isAuthRoute) {
+    return Response.redirect(new URL('/login', req.nextUrl));
   }
 
-  if (token && isAuthRoute) {
-    const dashboardUrl = new URL("/", request.url);
-    return NextResponse.redirect(dashboardUrl);
+  if (isLoggedIn && isAuthRoute) {
+    return Response.redirect(new URL('/', req.nextUrl));
   }
-
-  return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
-

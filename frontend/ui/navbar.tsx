@@ -1,12 +1,11 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguagesIcon, WalletIcon } from "lucide-react";
 
-import { useAuth } from "@/features/auth/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { Button } from "@/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -16,10 +15,13 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/ui/navigation-menu";
+import { signOut, useSession } from "next-auth/react";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
+  const isAuthPage = pathname === "/login" || pathname === "/register";
 
   return (
     <div className="fixed left-1/2 top-4 z-50 w-[calc(100vw-2rem)] max-w-3xl -translate-x-1/2">
@@ -30,44 +32,46 @@ export function Navbar() {
             <span className="text-sm font-semibold">Illia Wallet</span>
           </Link>
 
-          <NavigationMenu className="hidden md:block">
-            <NavigationMenuList>
-              {isAuthenticated && (
-                <>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      render={
-                        <Link
-                          href="/"
-                          className={cn(
-                            navigationMenuTriggerStyle(),
-                            pathname === "/" ? "bg-accent" : undefined
-                          )}
-                        >
-                          Wallet
-                        </Link>
-                      }
-                    />
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      render={
-                        <Link
-                          href="/transactions/new"
-                          className={cn(
-                            navigationMenuTriggerStyle(),
-                            pathname === "/transactions/new" ? "bg-accent" : undefined
-                          )}
-                        >
-                          New transaction
-                        </Link>
-                      }
-                    />
-                  </NavigationMenuItem>
-                </>
-              )}
-            </NavigationMenuList>
-          </NavigationMenu>
+          {!isAuthPage && (
+            <NavigationMenu className="hidden md:block">
+              <NavigationMenuList>
+                {isAuthenticated && (
+                  <>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink
+                        render={
+                          <Link
+                            href="/"
+                            className={cn(
+                              navigationMenuTriggerStyle(),
+                              pathname === "/" ? "bg-accent" : undefined
+                            )}
+                          >
+                            Wallet
+                          </Link>
+                        }
+                      />
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink
+                        render={
+                          <Link
+                            href="/transactions/new"
+                            className={cn(
+                              navigationMenuTriggerStyle(),
+                              pathname === "/transactions/new" ? "bg-accent" : undefined
+                            )}
+                          >
+                            New transaction
+                          </Link>
+                        }
+                      />
+                    </NavigationMenuItem>
+                  </>
+                )}
+              </NavigationMenuList>
+            </NavigationMenu>
+          )}
 
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -82,55 +86,81 @@ export function Navbar() {
               </select>
             </div>
 
-            <NavigationMenu className="md:hidden">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
-                  <NavigationMenuContent className="right-0 left-auto w-56">
-                    {isAuthenticated ? (
-                      <ul className="grid gap-1">
-                        <li>
-                          <NavigationMenuLink
-                            render={
-                              <Link
-                                href="/"
-                                className={cn(
-                                  "flex w-full items-center",
-                                  pathname === "/" ? "bg-accent" : undefined
-                                )}
-                              >
-                                Wallet
-                              </Link>
-                            }
-                          />
-                        </li>
-                        <li>
-                          <NavigationMenuLink
-                            render={
-                              <Link
-                                href="/transactions/new"
-                                className={cn(
-                                  "flex w-full items-center",
-                                  pathname === "/transactions/new"
-                                    ? "bg-accent"
-                                    : undefined
-                                )}
-                              >
-                                New transaction
-                              </Link>
-                            }
-                          />
-                        </li>
-                      </ul>
-                    ) : (
-                      <p className="px-3 py-2 text-sm text-muted-foreground">
-                        Sign in to see wallet links.
-                      </p>
-                    )}
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            {!isAuthPage && isAuthenticated && (
+              <Button
+                type="button"
+                variant="outline"
+                className="hidden md:inline-flex"
+                onClick={() => signOut({ redirectTo: "/login" })}
+              >
+                Sign out
+              </Button>
+            )}
+
+            {!isAuthPage && (
+              <NavigationMenu className="md:hidden">
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
+                    <NavigationMenuContent className="right-0 left-auto w-56">
+                      {isAuthenticated ? (
+                        <ul className="grid gap-1">
+                          <li>
+                            <NavigationMenuLink
+                              render={
+                                <Link
+                                  href="/"
+                                  className={cn(
+                                    "flex w-full items-center",
+                                    pathname === "/" ? "bg-accent" : undefined
+                                  )}
+                                >
+                                  Wallet
+                                </Link>
+                              }
+                            />
+                          </li>
+                          <li>
+                            <NavigationMenuLink
+                              render={
+                                <Link
+                                  href="/transactions/new"
+                                  className={cn(
+                                    "flex w-full items-center",
+                                    pathname === "/transactions/new"
+                                      ? "bg-accent"
+                                      : undefined
+                                  )}
+                                >
+                                  New transaction
+                                </Link>
+                              }
+                            />
+                          </li>
+                          <li>
+                            <NavigationMenuLink
+                              render={
+                                <button
+                                  type="button"
+                                  className="flex w-full items-center px-3 py-2 text-sm"
+                                  onClick={() => signOut({ redirectTo: "/login" })}
+                                >
+                                  Sign out
+                                </button>
+                              }
+                            />
+                          </li>
+                        </ul>
+                      ) : (
+                        <p className="px-3 py-2 text-sm text-muted-foreground">
+                          Sign in to see wallet links.
+                        </p>
+                      )}
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
           </div>
         </div>
       </div>

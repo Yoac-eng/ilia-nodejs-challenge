@@ -7,16 +7,15 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
 
-import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { type LoginInput, loginSchema } from "@/features/auth/schemas/auth.schema";
 import { Button } from "@/ui/button";
 import { Field, FieldLabel, FieldMessage } from "@/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/ui/input-group";
 
+
 export function LoginForm() {
   const router = useRouter();
-  const { setToken } = useAuth();
   const loginMutation = useLogin();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -33,10 +32,9 @@ export function LoginForm() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    const data = await loginMutation.mutateAsync(values);
-
-    setToken(data.token);
+    await loginMutation.mutateAsync(values);
     router.push("/");
+    router.refresh();
   });
 
   return (

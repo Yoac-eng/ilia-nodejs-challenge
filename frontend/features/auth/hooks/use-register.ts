@@ -6,16 +6,16 @@ import { type RegisterInput } from "@/features/auth/schemas/auth.schema";
 import { apiRequest } from "@/lib/api-client";
 
 type RegisterPayload = {
-  name: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   password: string;
 };
 
 function toRegisterPayload(values: RegisterInput): RegisterPayload {
   return {
-    name: values.name,
-    lastName: values.lastName,
+    first_name: values.name,
+    last_name: values.lastName,
     email: values.email,
     password: values.password,
   };
@@ -26,7 +26,7 @@ export function useRegister() {
     mutationFn: (values: RegisterInput) =>
       apiRequest({
         service: "users",
-        path: "/register",
+        path: "/users",
         method: "POST",
         body: toRegisterPayload(values),
       }),
