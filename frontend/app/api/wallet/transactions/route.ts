@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { getAuthContext, walletProxyRequest } from "../server";
+import { TransactionType } from "@/features/wallet/types/wallet";
 
 type CreateTransactionBody = {
-  type?: "credit" | "debit";
+  type?: TransactionType;
   amount?: number;
   description?: string;
 };
@@ -11,8 +12,8 @@ type CreateTransactionBody = {
 function toCreateTransactionPayload(
   body: CreateTransactionBody,
   userId: string
-): { user_id: string; type: "credit" | "debit"; amount: number; description?: string } | null {
-  if ((body.type !== "credit" && body.type !== "debit") || typeof body.amount !== "number") {
+): { user_id: string; type: TransactionType; amount: number; description?: string } | null {
+  if ((body.type !== "CREDIT" && body.type !== "DEBIT") || typeof body.amount !== "number") {
     return null;
   }
 
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const type = url.searchParams.get("type");
   const searchParams = new URLSearchParams();
-  if (type === "credit" || type === "debit") {
+  if (type === "CREDIT" || type === "DEBIT") {
     searchParams.set("type", type);
   }
 

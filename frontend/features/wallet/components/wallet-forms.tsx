@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { CreateTransactionInput, createTransactionSchema } from "../schemas/transaction.schema";
 import { Field, FieldLabel, FieldMessage } from "@/ui/field";
@@ -9,6 +9,7 @@ import { useCreateTransaction } from "../hooks/use-wallet-transaction";
 import { Button } from "@/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/ui/input-group";
 import { DollarSignIcon, MessageCircleIcon } from "lucide-react";
+import { formatCurrency } from "@/lib/formatters";
 
 type CreateTransactionFormInput = z.input<typeof createTransactionSchema>;
 
@@ -20,20 +21,19 @@ function BaseTransactionForm({
   type,
   submitLabel,
   submitLoadingLabel,
-  amountPlaceholder,
   descriptionPlaceholder,
   onSuccess,
 }: {
   type: CreateTransactionInput["type"];
   submitLabel: string;
   submitLoadingLabel: string;
-  amountPlaceholder: string;
   descriptionPlaceholder: string;
   onSuccess?: () => void;
 }) {
   const createTransactionMutation = useCreateTransaction();
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -42,7 +42,7 @@ function BaseTransactionForm({
     defaultValues: {
       type,
       amount: 0,
-      description: "",
+      description: undefined,
     },
   });
 
@@ -67,13 +67,36 @@ function BaseTransactionForm({
           <InputGroupAddon>
             <DollarSignIcon className="h-4 w-4" />
           </InputGroupAddon>
-          <InputGroupInput
-            id="amount"
-            type="number"
-            inputMode="decimal"
-            step="0.01"
-            placeholder={amountPlaceholder}
-            {...register("amount", { valueAsNumber: true })}
+          <Controller
+            control={control}
+            name="amount"
+            render={({ field }) => (
+              <InputGroupInput
+                id="amount"
+                type="text"
+                inputMode="numeric"
+                placeholder="0.00"
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  // Strip out EVERYTHING except numbers (removes commas, dots, letters)
+                  const numericString = inputValue.replace(/\D/g, "");
+                  // Convert to a decimal (e.g., typing "1" becomes 0.01, "123" becomes 1.23)
+                  const amountAsNumber = Number(numericString) / 100;
+                  // Save the pure NUMBER into React Hook Form state
+                  field.onChange(amountAsNumber);
+                }}
+
+                // format the pure number back into a pretty string for the UI
+                value={
+                  field.value !== undefined && !isNaN(field.value)
+                    ? formatCurrency(field.value)
+                    : ""
+                }
+                ref={field.ref}
+                onBlur={field.onBlur}
+                name={field.name}
+              />
+            )}
           />
         </InputGroup>
         {errors.amount?.message && <FieldMessage>{errors.amount.message}</FieldMessage>}
@@ -108,10 +131,9 @@ function BaseTransactionForm({
 export function AddFundsForm(props: BaseFormProps) {
   return (
     <BaseTransactionForm
-      type="credit"
+      type="CREDIT"
       submitLabel="Add funds"
       submitLoadingLabel="Adding funds..."
-      amountPlaceholder="0.00"
       descriptionPlaceholder="Optional description"
       {...props}
     />
@@ -121,10 +143,9 @@ export function AddFundsForm(props: BaseFormProps) {
 export function WithdrawFundsForm(props: BaseFormProps) {
   return (
     <BaseTransactionForm
-      type="debit"
+      type="DEBIT"
       submitLabel="Withdraw"
       submitLoadingLabel="Withdrawing..."
-      amountPlaceholder="0.00"
       descriptionPlaceholder="Optional description"
       {...props}
     />

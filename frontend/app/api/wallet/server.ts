@@ -29,6 +29,7 @@ function buildWalletUrl(path: string, searchParams?: URLSearchParams): string {
   return url.toString();
 }
 
+// transform the response from the wallet service into a JSON object
 async function parseBackendPayload(response: Response): Promise<unknown> {
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
@@ -55,6 +56,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   return { accessToken, userId };
 }
 
+// proxy the request to the wallet service real back-end
 export async function walletProxyRequest({
   path,
   method = "GET",

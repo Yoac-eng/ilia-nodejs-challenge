@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { WalletBalance, WalletTransaction } from "../types/wallet";
 
 const walletApiBaseUrl =
-  process.env.NEXT_PUBLIC_WALLET_API_URL ?? "http://localhost:3001";
+  process.env.WALLET_API_URL ?? "http://localhost:3001";
 
 function buildWalletUrl(path: string): string {
   return new URL(path, walletApiBaseUrl).toString();
@@ -23,6 +23,8 @@ async function parseJson(response: Response): Promise<unknown> {
   }
 }
 
+// this is a server side function that fetches data from the wallet service
+// designed to be used in server components for better first render performance (mainly for the dashboard page)
 async function getServerWalletData<T>(path: string): Promise<T> {
   const session = await auth();
   if (!session?.accessToken) {
@@ -42,10 +44,12 @@ async function getServerWalletData<T>(path: string): Promise<T> {
   return payload as T;
 }
 
+// get the balance from the wallet service
 export async function getServerWalletBalance(): Promise<WalletBalance> {
   return getServerWalletData<WalletBalance>("/balance");
 }
 
+// get the transactions from the wallet service
 export async function getServerWalletTransactions(): Promise<WalletTransaction[]> {
   return getServerWalletData<WalletTransaction[]>("/transactions");
 }

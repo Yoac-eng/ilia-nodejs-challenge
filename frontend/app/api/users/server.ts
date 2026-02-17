@@ -18,6 +18,7 @@ function buildUsersUrl(path: string): string {
   return new URL(path, usersApiBaseUrl).toString();
 }
 
+// transform the response from the users service into a JSON object
 async function parseBackendPayload(response: Response): Promise<unknown> {
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {

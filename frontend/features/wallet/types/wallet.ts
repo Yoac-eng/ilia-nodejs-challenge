@@ -1,4 +1,4 @@
-export type TransactionType = "credit" | "debit";
+export type TransactionType = "CREDIT" | "DEBIT";
 
 export type WalletBalance = {
   amount: number;

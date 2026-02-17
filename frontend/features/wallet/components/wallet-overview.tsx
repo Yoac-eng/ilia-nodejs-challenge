@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
 import { formatCurrency, formatDate } from "@/lib/formatters";
@@ -15,7 +16,9 @@ import {
   useWalletBalanceQuery,
   useWalletTransactionsQuery,
 } from "../hooks/use-wallet-transaction";
-import { WalletBalance, WalletTransaction } from "../types/wallet";
+import { TransactionType, WalletBalance, WalletTransaction } from "../types/wallet";
+import { SkeletonTable } from "@/ui/skeletonTable";
+import { Skeleton } from "@/ui/skeleton";
 
 type WalletOverviewProps = {
   initialBalance: WalletBalance;
@@ -30,11 +33,18 @@ export function WalletOverview({
   initialBalance,
   initialTransactions,
 }: WalletOverviewProps) {
+  const [transactionsFilter, setTransactionsFilter] = useState<TransactionType | "ALL">("ALL");
   const balanceQuery = useWalletBalanceQuery(initialBalance);
-  const transactionsQuery = useWalletTransactionsQuery(initialTransactions);
+  const transactionsQuery = useWalletTransactionsQuery(
+    transactionsFilter,
+    transactionsFilter === "ALL" ? initialTransactions : undefined
+  );
 
   const balanceInDollars = dollarsFromCents(balanceQuery.data?.amount ?? 0);
   const transactions = transactionsQuery.data ?? [];
+  const isTransactionsLoading =
+    transactionsQuery.isPending ||
+    (transactionsQuery.isFetching && transactions.length === 0);
 
   return (
     <div className="space-y-6 pt-16">
@@ -43,11 +53,12 @@ export function WalletOverview({
           <div>
             <CardTitle className="text-2xl">Wallet</CardTitle>
             <CardDescription className="mt-2">Available balance</CardDescription>
-            <p className="mt-1 text-3xl font-semibold tracking-tight">
-              {formatCurrency(balanceInDollars)}
-            </p>
-            {balanceQuery.isFetching && (
-              <p className="mt-2 text-xs text-muted-foreground">Updating balance...</p>
+            {balanceQuery.isFetching ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <p className="mt-1 text-3xl font-semibold tracking-tight">
+                {formatCurrency(balanceInDollars)}
+              </p>
             )}
             {balanceQuery.error instanceof Error && (
               <p className="mt-2 text-xs text-destructive">{balanceQuery.error.message}</p>
@@ -61,17 +72,34 @@ export function WalletOverview({
       <section className="grid gap-4 lg:grid-cols-1">
         <Card>
           <CardHeader>
-            <CardTitle>Account Activities</CardTitle>
-            <CardDescription>Latest transactions</CardDescription>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <CardTitle>Account Activities</CardTitle>
+                <CardDescription>Latest transactions</CardDescription>
+              </div>
+              <select
+                aria-label="Filter transactions by type"
+                className="h-9 rounded-md border bg-background px-3 text-sm"
+                value={transactionsFilter}
+                onChange={(event) =>
+                  setTransactionsFilter(event.target.value as TransactionType | "ALL")
+                }
+              >
+                <option value="ALL">All</option>
+                <option value="CREDIT">Credit</option>
+                <option value="DEBIT">Debit</option>
+              </select>
+            </div>
           </CardHeader>
           <CardContent>
+            {isTransactionsLoading && <SkeletonTable />}
             {transactionsQuery.error instanceof Error && (
               <p className="text-sm text-destructive">{transactionsQuery.error.message}</p>
             )}
-            {!transactionsQuery.error && transactions.length === 0 && (
+            {!isTransactionsLoading && !transactionsQuery.error && transactions.length === 0 && (
               <p className="text-sm text-muted-foreground">No transactions yet.</p>
             )}
-            {transactions.length > 0 && (
+            {!isTransactionsLoading && transactions.length > 0 && (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="text-muted-foreground">
@@ -84,7 +112,7 @@ export function WalletOverview({
                   </thead>
                   <tbody>
                     {transactions.map((transaction) => {
-                      const isCredit = transaction.type === "credit";
+                      const isCredit = transaction.type === "CREDIT";
                       return (
                         <tr key={transaction.id} className="border-b last:border-0">
                           <td className="px-2 py-3">

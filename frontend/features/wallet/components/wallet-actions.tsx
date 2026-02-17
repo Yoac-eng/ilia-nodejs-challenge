@@ -22,9 +22,9 @@ export function WalletActions() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
 
-  function handleSuccess(type: "credit" | "debit") {
-    if (type === "credit") setIsAddOpen(false);
-    if (type === "debit") setIsWithdrawOpen(false);
+  function handleSuccess(type: "CREDIT" | "DEBIT") {
+    if (type === "CREDIT") setIsAddOpen(false);
+    if (type === "DEBIT") setIsWithdrawOpen(false);
 
     // after success, invalidate the balance and transactions queries (cleans the cache)
     void queryClient.invalidateQueries({ queryKey: walletQueryKeys.balance });
@@ -49,7 +49,7 @@ export function WalletActions() {
             </DialogDescription>
           </DialogHeader>
 
-          <AddFundsForm onSuccess={() => handleSuccess("credit")} />
+          <AddFundsForm onSuccess={() => handleSuccess("CREDIT")} />
         </DialogContent>
       </Dialog>
 
@@ -69,7 +69,7 @@ export function WalletActions() {
             </DialogDescription>
           </DialogHeader>
 
-          <WithdrawFundsForm onSuccess={() => handleSuccess("debit")} />
+          <WithdrawFundsForm onSuccess={() => handleSuccess("DEBIT")} />
         </DialogContent>
       </Dialog>
     </div>
