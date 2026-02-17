@@ -37,7 +37,7 @@ export function Navbar() {
               <NavigationMenuList>
                 {isAuthenticated && (
                   <>
-                    <NavigationMenuItem>
+                    <NavigationMenuItem className="flex items-center gap-2">
                       <NavigationMenuLink
                         render={
                           <Link
@@ -47,22 +47,20 @@ export function Navbar() {
                               pathname === "/" ? "bg-accent" : undefined
                             )}
                           >
-                            Wallet
+                            Dashboard
                           </Link>
                         }
                       />
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
                       <NavigationMenuLink
                         render={
                           <Link
-                            href="/transactions/new"
+                            href="/wallet"
                             className={cn(
                               navigationMenuTriggerStyle(),
-                              pathname === "/transactions/new" ? "bg-accent" : undefined
+                              pathname === "/wallet" ? "bg-accent" : undefined
                             )}
                           >
-                            New transaction
+                            Wallet
                           </Link>
                         }
                       />
@@ -112,10 +110,10 @@ export function Navbar() {
                                   href="/"
                                   className={cn(
                                     "flex w-full items-center",
-                                    pathname === "/" ? "bg-accent" : undefined
+                                    pathname === "/" ? "border-b border-b-accent" : undefined
                                   )}
                                 >
-                                  Wallet
+                                  Dashboard
                                 </Link>
                               }
                             />
@@ -124,15 +122,13 @@ export function Navbar() {
                             <NavigationMenuLink
                               render={
                                 <Link
-                                  href="/transactions/new"
+                                  href="/wallet"
                                   className={cn(
                                     "flex w-full items-center",
-                                    pathname === "/transactions/new"
-                                      ? "bg-accent"
-                                      : undefined
+                                    pathname === "/wallet" ? "border-b border-b-accent" : undefined
                                   )}
                                 >
-                                  New transaction
+                                  Wallet
                                 </Link>
                               }
                             />
