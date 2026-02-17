@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Headers,
   HttpCode,
@@ -40,8 +41,15 @@ export class TransactionsController {
   async createTransaction(
     @Body(new ZodValidationPipe(createTransactionSchema))
     input: CreateTransactionDto,
+    @AuthenticatedUserId() authenticatedUserId: string,
     @Headers() rawHeaders: Record<string, string | string[] | undefined>,
   ) {
+    if (input.user_id !== authenticatedUserId) {
+      throw new ForbiddenException(
+        'The informed user_id does not match the authenticated user.',
+      );
+    }
+
     const headers: CreateTransactionHeadersDto =
       createTransactionHeadersSchema.parse(rawHeaders);
 
