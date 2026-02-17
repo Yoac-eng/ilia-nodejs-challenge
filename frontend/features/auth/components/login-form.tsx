@@ -11,7 +11,7 @@ import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { type LoginInput, loginSchema } from "@/features/auth/schemas/auth.schema";
 import { Button } from "@/ui/button";
-import { Field, FieldDescription, FieldLabel, FieldMessage } from "@/ui/field";
+import { Field, FieldLabel, FieldMessage } from "@/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/ui/input-group";
 
 export function LoginForm() {

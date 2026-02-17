@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
+import { LockIcon, MailIcon } from "lucide-react";
 
 import { useRegister } from "@/features/auth/hooks/use-register";
 import {
   type RegisterInput,
   registerSchema,
 } from "@/features/auth/schemas/auth.schema";
+import { useToast } from "@/lib/use-toast";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Field, FieldLabel, FieldMessage } from "@/ui/field";
@@ -20,7 +20,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/ui/input-group";
 export function RegisterForm() {
   const router = useRouter();
   const registerMutation = useRegister();
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const { success } = useToast();
 
   const {
     register,
@@ -39,7 +39,9 @@ export function RegisterForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     await registerMutation.mutateAsync(values);
-
+    success("Account created", {
+      description: "You can now sign in with your new account.",
+    });
     router.push("/login");
   });
 
@@ -104,25 +106,11 @@ export function RegisterForm() {
           </InputGroupAddon>
           <InputGroupInput
             id="password"
-            type={isPasswordVisible ? "text" : "password"}
+            type="password"
             placeholder="Create a password"
             autoComplete="new-password"
             {...register("password")}
           />
-          <InputGroupAddon align="inline-end">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center"
-              onClick={() => setIsPasswordVisible((prev) => !prev)}
-              aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-            >
-              {isPasswordVisible ? (
-                <EyeOffIcon className="h-4 w-4" />
-              ) : (
-                <EyeIcon className="h-4 w-4" />
-              )}
-            </button>
-          </InputGroupAddon>
         </InputGroup>
         {errors.password?.message && (
           <FieldMessage>{errors.password.message}</FieldMessage>
@@ -139,7 +127,7 @@ export function RegisterForm() {
           </InputGroupAddon>
           <InputGroupInput
             id="confirmPassword"
-            type={isPasswordVisible ? "text" : "password"}
+            type="password"
             placeholder="Confirm your password"
             autoComplete="new-password"
             {...register("confirmPassword")}
