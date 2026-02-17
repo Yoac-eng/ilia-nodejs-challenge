@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const usersApiBaseUrl =
-  process.env.NEXT_PUBLIC_USERS_API_URL ?? "http://localhost:3002";
+function getAppBaseUrl(): string {
+  return process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -14,10 +15,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         try {
-          const res = await fetch(`${usersApiBaseUrl}/auth`, {
-            method: 'POST',
+          const res = await fetch(`${getAppBaseUrl()}/api/users/login`, {
+            method: "POST",
             body: JSON.stringify(credentials),
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
           });
 
           const data = await res.json();
@@ -35,31 +37,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         } catch {
           return null;
         }
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     // attach the custom accessToken to the encrypted JWT cookie (api token !== auth session token)
     async jwt({ token, user }) {
-      const nextToken = token as typeof token & { accessToken?: string };
-
       if (user && "accessToken" in user && typeof user.accessToken === "string") {
-        nextToken.accessToken = user.accessToken;
+        token.accessToken = user.accessToken;
       }
-      return nextToken;
+      return token;
     },
     // expose the accessToken to the frontend session to use in useSession hook (api token !== auth session token)
     async session({ session, token }) {
-      const nextSession = session as typeof session & { accessToken?: string };
-
-      if (typeof token.accessToken === "string") {
-        nextSession.accessToken = token.accessToken;
+      if (session.user && typeof token.sub === "string") {
+        session.user.id = token.sub;
       }
 
-      return nextSession;
+      if (typeof token.accessToken === "string") {
+        session.accessToken = token.accessToken;
+      }
+
+      return session;
     }
   },
   pages: {
-    signIn: '/login', // Redirect here if auth fails
+    signIn: "/login", // Redirect here if auth fails
   },
 });

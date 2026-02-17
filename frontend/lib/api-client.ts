@@ -1,19 +1,11 @@
 import axios, { type AxiosError, type AxiosInstance } from "axios";
 
-const walletApiBaseUrl =
-  process.env.NEXT_PUBLIC_WALLET_API_URL ?? "http://localhost:3001";
-const usersApiBaseUrl =
-  process.env.NEXT_PUBLIC_USERS_API_URL ?? "http://localhost:3002";
-
-type ApiService = "wallet" | "users";
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-type RequestConfig = {
-  service: ApiService;
+type InternalRequestConfig = {
   path: string;
   method?: HttpMethod;
   body?: unknown;
-  token?: string | null;
 };
 
 type ApiErrorPayload = {
@@ -26,21 +18,9 @@ type ApiErrorPayload = {
   }[];
 };
 
-const walletApi: AxiosInstance = axios.create({
-  baseURL: walletApiBaseUrl,
-});
-
-const usersApi: AxiosInstance = axios.create({
-  baseURL: usersApiBaseUrl,
-});
-
-function resolveClient(service: ApiService) {
-  return service === "wallet" ? walletApi : usersApi;
-}
+const appApi: AxiosInstance = axios.create();
 
 function toErrorMessage(status: number, payload: unknown) {
-  console.log("payload ", payload);
-  console.log("status ", status);
   const fallback = `Request failed (${status})`;
 
   // if we don't have a payload, return the fallback
@@ -66,25 +46,19 @@ function toErrorMessage(status: number, payload: unknown) {
   return fallback;
 }
 
-export async function apiRequest<T>({
-  service,
+export async function appApiRequest<T>({
   path,
   method = "GET",
   body,
-  token,
-}: RequestConfig): Promise<T> {
+}: InternalRequestConfig): Promise<T> {
   try {
-    const response = await resolveClient(service).request<T>({
+    const response = await appApi.request<T>({
       url: path,
       method,
       data: body,
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
       validateStatus: (status) => status >= 200 && status < 300,
     });
 
-    // Axios returns "" for empty responses in some cases; normalize to undefined.
     if (response.status === 204) {
       return undefined as T;
     }
@@ -93,7 +67,6 @@ export async function apiRequest<T>({
   } catch (error) {
     const axiosError = error as AxiosError<unknown>;
 
-    // Network / CORS / no response
     if (!axiosError.response) {
       throw new Error("Network error. Please try again.");
     }

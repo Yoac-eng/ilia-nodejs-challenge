@@ -1,11 +1,95 @@
 {
   "auth": {
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "loginTitle": "Sign in with email",
+    "loginSubtitle": "Manage your wallet with ease, transactions made easy. For free.",
+    "registerTitle": "Create an account",
+    "registerSubtitle": "Create your wallet in minutes. No credit card required.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signingIn": "Signing in...",
+    "getStarted": "Get started",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "firstNameLabel": "First Name",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastNameLabel": "Last Name",
+    "lastNamePlaceholder": "Enter your last name",
+    "createPasswordPlaceholder": "Create a password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "creatingAccount": "Creating account...",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "accountCreatedTitle": "Account created",
+    "accountCreatedDescription": "You can now sign in with your new account."
   },
   "dashboard": {
     "title": "Dashboard",
     "balance": "Current Balance"
+  },
+  "home": {
+    "eyebrow": "Next-gen wallet",
+    "titleLine1": "Funds transfers",
+    "titlePrefix": "made",
+    "titleHighlight": "easy.",
+    "subtitle": "Manage your funds with ease. For free.",
+    "startNow": "Manage my wallet now",
+    "learnMore": "Learn more",
+    "heroAlt": "Mountain landscape at twilight",
+    "stats": {
+      "processed": "Processed",
+      "countries": "Countries",
+      "uptime": "Uptime"
+    },
+    "features": {
+      "instantTransfersTitle": "Instant Transfers",
+      "instantTransfersDesc": "Funds arrive in seconds, not days. Real-time settlement worldwide.",
+      "securityTitle": "Bank-grade Security",
+      "securityDesc": "End-to-end encryption with fraud detection built into every transaction.",
+      "globalCoverageTitle": "Global Coverage",
+      "globalCoverageDesc": "Accept 135+ currencies across 150+ countries with local payment methods."
+    }
+  },
+  "navbar": {
+    "appName": "Illia Wallet",
+    "home": "Home",
+    "wallet": "Wallet",
+    "language": "Language",
+    "menu": "Menu",
+    "signOut": "Sign out",
+    "signInPrompt": "Sign in to see wallet links."
+  },
+  "wallet": {
+    "title": "Wallet",
+    "availableBalance": "Available balance",
+    "updatingBalance": "Updating balance...",
+    "activitiesTitle": "Account Activities",
+    "activitiesDescription": "Latest transactions",
+    "filterByType": "Filter by type",
+    "all": "All",
+    "credit": "Credit",
+    "debit": "Debit",
+    "descriptionHeader": "Description",
+    "typeHeader": "Type",
+    "dateHeader": "Date",
+    "amountHeader": "Amount",
+    "empty": "No transactions yet.",
+    "fallbackDescription": "Transaction",
+    "addFunds": "Add funds",
+    "addFundsTitle": "Add funds to your wallet",
+    "addFundsDescription": "Enter the amount you want to add to your wallet.",
+    "withdraw": "Withdraw",
+    "withdrawTitle": "Withdraw from your wallet",
+    "withdrawDescription": "Enter the amount you want to withdraw from your wallet.",
+    "amountLabel": "Amount",
+    "descriptionLabel": "Description",
+    "optionalDescriptionPlaceholder": "Optional description",
+    "addingFunds": "Adding funds...",
+    "withdrawing": "Withdrawing..."
   }
 }
 

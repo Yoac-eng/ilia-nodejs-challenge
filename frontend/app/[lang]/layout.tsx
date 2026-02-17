@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { notFound } from "next/navigation";
+
+import "@/app/globals.css";
+import { getDictionary } from "@/lib/dictionaries";
+import { toLocale } from "@/lib/i18n";
 import { QueryProvider } from "@/providers/query-provider";
+import { SessionProvider } from "next-auth/react";
 import { SonnerProvider } from "@/providers/sonner-provider";
 import { Navbar } from "@/ui/navbar";
-import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,19 +25,30 @@ export const metadata: Metadata = {
   description: "Wallet and transactions frontend",
 };
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }>) {
+  const { lang } = await params;
+  const locale = toLocale(lang);
+
+  if (!locale) {
+    notFound();
+  }
+
+  const dict = await getDictionary(locale);
+
   return (
-    <html lang="en" className="dark">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryProvider>
           <SessionProvider>
-            <Navbar />
+            <Navbar locale={locale} copy={dict.navbar} />
             {children}
             <SonnerProvider />
           </SessionProvider>
@@ -42,3 +57,4 @@ export default function RootLayout({
     </html>
   );
 }
+

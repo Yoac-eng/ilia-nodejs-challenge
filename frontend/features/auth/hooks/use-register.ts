@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 
 import { type RegisterInput } from "@/features/auth/schemas/auth.schema";
-import { apiRequest } from "@/lib/api-client";
+import { appApiRequest } from "@/lib/api-client";
 
 type RegisterPayload = {
   first_name: string;
@@ -24,9 +24,8 @@ function toRegisterPayload(values: RegisterInput): RegisterPayload {
 export function useRegister() {
   return useMutation({
     mutationFn: (values: RegisterInput) =>
-      apiRequest({
-        service: "users",
-        path: "/users",
+      appApiRequest({
+        path: "/api/users/register",
         method: "POST",
         body: toRegisterPayload(values),
       }),

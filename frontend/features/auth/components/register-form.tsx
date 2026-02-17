@@ -17,7 +17,26 @@ import { Input } from "@/ui/input";
 import { Field, FieldLabel, FieldMessage } from "@/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/ui/input-group";
 
-export function RegisterForm() {
+type RegisterFormCopy = {
+  accountCreatedTitle: string;
+  accountCreatedDescription: string;
+  firstNameLabel: string;
+  firstNamePlaceholder: string;
+  lastNameLabel: string;
+  lastNamePlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  passwordLabel: string;
+  createPasswordPlaceholder: string;
+  confirmPasswordLabel: string;
+  confirmPasswordPlaceholder: string;
+  creatingAccount: string;
+  getStarted: string;
+  alreadyHaveAccount: string;
+  signIn: string;
+};
+
+export function RegisterForm({ locale, copy }: { locale: string; copy: RegisterFormCopy }) {
   const router = useRouter();
   const registerMutation = useRegister();
   const { success } = useToast();
@@ -39,10 +58,10 @@ export function RegisterForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     await registerMutation.mutateAsync(values);
-    success("Account created", {
-      description: "You can now sign in with your new account.",
+    success(copy.accountCreatedTitle, {
+      description: copy.accountCreatedDescription,
     });
-    router.push("/login");
+    router.push(`/${locale}/login`);
   });
 
   return (
@@ -55,10 +74,10 @@ export function RegisterForm() {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
         <Field>
-          <FieldLabel htmlFor="name">First Name</FieldLabel>
+          <FieldLabel htmlFor="name">{copy.firstNameLabel}</FieldLabel>
           <Input
             id="name"
-            placeholder="Enter your first name"
+            placeholder={copy.firstNamePlaceholder}
             {...register("name")}
           />
           {errors.name?.message && (
@@ -67,10 +86,10 @@ export function RegisterForm() {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
+          <FieldLabel htmlFor="lastName">{copy.lastNameLabel}</FieldLabel>
           <Input
             id="lastName"
-            placeholder="Enter your last name"
+            placeholder={copy.lastNamePlaceholder}
             {...register("lastName")}
           />
           {errors.lastName?.message && (
@@ -80,7 +99,7 @@ export function RegisterForm() {
       </div>
 
       <Field>
-        <FieldLabel htmlFor="email">Email</FieldLabel>
+        <FieldLabel htmlFor="email">{copy.emailLabel}</FieldLabel>
         <InputGroup className={errors.email ? "border-destructive" : undefined}>
           <InputGroupAddon>
             <MailIcon className="h-4 w-4" />
@@ -88,7 +107,7 @@ export function RegisterForm() {
           <InputGroupInput
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder={copy.emailPlaceholder}
             autoComplete="email"
             {...register("email")}
           />
@@ -97,7 +116,7 @@ export function RegisterForm() {
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="password">Password</FieldLabel>
+        <FieldLabel htmlFor="password">{copy.passwordLabel}</FieldLabel>
         <InputGroup
           className={errors.password ? "border-destructive" : undefined}
         >
@@ -107,7 +126,7 @@ export function RegisterForm() {
           <InputGroupInput
             id="password"
             type="password"
-            placeholder="Create a password"
+            placeholder={copy.createPasswordPlaceholder}
             autoComplete="new-password"
             {...register("password")}
           />
@@ -118,7 +137,7 @@ export function RegisterForm() {
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+        <FieldLabel htmlFor="confirmPassword">{copy.confirmPasswordLabel}</FieldLabel>
         <InputGroup
           className={errors.confirmPassword ? "border-destructive" : undefined}
         >
@@ -128,7 +147,7 @@ export function RegisterForm() {
           <InputGroupInput
             id="confirmPassword"
             type="password"
-            placeholder="Confirm your password"
+            placeholder={copy.confirmPasswordPlaceholder}
             autoComplete="new-password"
             {...register("confirmPassword")}
           />
@@ -144,13 +163,13 @@ export function RegisterForm() {
         disabled={isSubmitting || registerMutation.isPending}
       >
         {isSubmitting || registerMutation.isPending
-          ? "Creating account..."
-          : "Get started"}
+          ? copy.creatingAccount
+          : copy.getStarted}
       </Button>
       <p className="text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/login" className="underline">
-          Sign in
+        {copy.alreadyHaveAccount}{" "}
+        <Link href={`/${locale}/login`} className="underline">
+          {copy.signIn}
         </Link>
       </p>
     </form>
