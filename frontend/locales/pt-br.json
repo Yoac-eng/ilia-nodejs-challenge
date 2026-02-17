@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "login": "Entrar",
+    "register": "Cadastrar"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "balance": "Saldo Atual"
+  }
+}
+
