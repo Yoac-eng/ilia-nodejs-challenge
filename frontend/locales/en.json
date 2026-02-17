@@ -31,9 +31,32 @@
     "title": "Dashboard",
     "balance": "Current Balance"
   },
+  "home": {
+    "eyebrow": "Next-gen wallet",
+    "titleLine1": "Funds transfers",
+    "titlePrefix": "made",
+    "titleHighlight": "easy.",
+    "subtitle": "Manage your funds with ease. For free.",
+    "startNow": "Manage my wallet now",
+    "learnMore": "Learn more",
+    "heroAlt": "Mountain landscape at twilight",
+    "stats": {
+      "processed": "Processed",
+      "countries": "Countries",
+      "uptime": "Uptime"
+    },
+    "features": {
+      "instantTransfersTitle": "Instant Transfers",
+      "instantTransfersDesc": "Funds arrive in seconds, not days. Real-time settlement worldwide.",
+      "securityTitle": "Bank-grade Security",
+      "securityDesc": "End-to-end encryption with fraud detection built into every transaction.",
+      "globalCoverageTitle": "Global Coverage",
+      "globalCoverageDesc": "Accept 135+ currencies across 150+ countries with local payment methods."
+    }
+  },
   "navbar": {
     "appName": "Illia Wallet",
-    "dashboard": "Dashboard",
+    "home": "Home",
     "wallet": "Wallet",
     "language": "Language",
     "menu": "Menu",

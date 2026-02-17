@@ -21,7 +21,7 @@ import { signOut, useSession } from "next-auth/react";
 
 type NavbarCopy = {
   appName: string;
-  dashboard: string;
+  home: string;
   wallet: string;
   language: string;
   menu: string;
@@ -100,7 +100,7 @@ export function Navbar({ locale, copy }: { locale: string; copy: NavbarCopy }) {
                               pathWithoutLocale === "/" ? "bg-accent" : undefined
                             )}
                           >
-                            {copy.dashboard}
+                            {copy.home}
                           </Link>
                         }
                       />
@@ -181,7 +181,7 @@ export function Navbar({ locale, copy }: { locale: string; copy: NavbarCopy }) {
                                     pathWithoutLocale === "/" ? "border-b border-b-accent" : undefined
                                   )}
                                 >
-                                  {copy.dashboard}
+                                  {copy.home}
                                 </Link>
                               }
                             />

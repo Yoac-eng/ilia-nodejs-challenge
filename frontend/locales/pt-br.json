@@ -31,9 +31,32 @@
     "title": "Painel",
     "balance": "Saldo Atual"
   },
+  "home": {
+    "eyebrow": "Carteira da nova geração",
+    "titleLine1": "Transferencias de",
+    "titlePrefix": "fundos",
+    "titleHighlight": "facilitadas.",
+    "subtitle": "Gerencie seus fundos com facilidade. Gratuitamente.",
+    "startNow": "Gerenciar minha carteira agora",
+    "learnMore": "Saiba mais",
+    "heroAlt": "Paisagem de montanha ao entardecer",
+    "stats": {
+      "processed": "Processado",
+      "countries": "Paises",
+      "uptime": "Disponibilidade"
+    },
+    "features": {
+      "instantTransfersTitle": "Transferencias instantaneas",
+      "instantTransfersDesc": "Os fundos chegam em segundos, nao em dias. Liquidacao em tempo real no mundo todo.",
+      "securityTitle": "Seguranca de nivel bancario",
+      "securityDesc": "Criptografia ponta a ponta com deteccao de fraude em cada transacao.",
+      "globalCoverageTitle": "Cobertura global",
+      "globalCoverageDesc": "Aceite mais de 135 moedas em mais de 150 paises com metodos de pagamento locais."
+    }
+  },
   "navbar": {
     "appName": "Illia Wallet",
-    "dashboard": "Painel",
+    "home": "Inicio",
     "wallet": "Carteira",
     "language": "Idioma",
     "menu": "Menu",
