@@ -15,19 +15,24 @@ type CreateTransactionFormInput = z.input<typeof createTransactionSchema>;
 
 type BaseFormProps = {
   onSuccess?: () => void;
+  copy: {
+    amountLabel: string;
+    descriptionLabel: string;
+    optionalDescriptionPlaceholder: string;
+    addFunds: string;
+    addingFunds: string;
+    withdraw: string;
+    withdrawing: string;
+  };
 };
 
 function BaseTransactionForm({
   type,
-  submitLabel,
-  submitLoadingLabel,
-  descriptionPlaceholder,
+  copy,
   onSuccess,
 }: {
   type: CreateTransactionInput["type"];
-  submitLabel: string;
-  submitLoadingLabel: string;
-  descriptionPlaceholder: string;
+  copy: BaseFormProps["copy"];
   onSuccess?: () => void;
 }) {
   const createTransactionMutation = useCreateTransaction();
@@ -62,7 +67,7 @@ function BaseTransactionForm({
       )}
 
       <Field>
-        <FieldLabel htmlFor="amount">Amount</FieldLabel>
+        <FieldLabel htmlFor="amount">{copy.amountLabel}</FieldLabel>
         <InputGroup className={errors.amount ? "border-destructive" : undefined}>
           <InputGroupAddon>
             <DollarSignIcon className="h-4 w-4" />
@@ -103,7 +108,7 @@ function BaseTransactionForm({
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="description">Description</FieldLabel>
+        <FieldLabel htmlFor="description">{copy.descriptionLabel}</FieldLabel>
         <InputGroup className={errors.description ? "border-destructive" : undefined}>
           <InputGroupAddon>
             <MessageCircleIcon className="h-4 w-4" />
@@ -111,7 +116,7 @@ function BaseTransactionForm({
           <InputGroupInput
             id="description"
             type="text"
-            placeholder={descriptionPlaceholder}
+            placeholder={copy.optionalDescriptionPlaceholder}
             autoComplete="off"
             {...register("description")}
           />
@@ -122,7 +127,13 @@ function BaseTransactionForm({
       </Field>
 
       <Button type="submit" className="w-full my-4" disabled={isLoading}>
-        {isLoading ? submitLoadingLabel : submitLabel}
+        {isLoading
+          ? type === "CREDIT"
+            ? copy.addingFunds
+            : copy.withdrawing
+          : type === "CREDIT"
+            ? copy.addFunds
+            : copy.withdraw}
       </Button>
     </form>
   );
@@ -132,9 +143,6 @@ export function AddFundsForm(props: BaseFormProps) {
   return (
     <BaseTransactionForm
       type="CREDIT"
-      submitLabel="Add funds"
-      submitLoadingLabel="Adding funds..."
-      descriptionPlaceholder="Optional description"
       {...props}
     />
   );
@@ -144,9 +152,6 @@ export function WithdrawFundsForm(props: BaseFormProps) {
   return (
     <BaseTransactionForm
       type="DEBIT"
-      submitLabel="Withdraw"
-      submitLoadingLabel="Withdrawing..."
-      descriptionPlaceholder="Optional description"
       {...props}
     />
   );

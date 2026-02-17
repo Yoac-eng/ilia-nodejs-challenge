@@ -13,8 +13,18 @@ import { Button } from "@/ui/button";
 import { Field, FieldLabel, FieldMessage } from "@/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/ui/input-group";
 
+type LoginFormCopy = {
+  emailLabel: string;
+  emailPlaceholder: string;
+  passwordLabel: string;
+  passwordPlaceholder: string;
+  signingIn: string;
+  getStarted: string;
+  dontHaveAccount: string;
+  signUp: string;
+};
 
-export function LoginForm() {
+export function LoginForm({ locale, copy }: { locale: string; copy: LoginFormCopy }) {
   const router = useRouter();
   const loginMutation = useLogin();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -33,7 +43,7 @@ export function LoginForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     await loginMutation.mutateAsync(values);
-    router.push("/");
+    router.push(`/${locale}`);
     router.refresh();
   });
 
@@ -46,7 +56,7 @@ export function LoginForm() {
       )}
 
       <Field>
-        <FieldLabel htmlFor="email">Email</FieldLabel>
+        <FieldLabel htmlFor="email">{copy.emailLabel}</FieldLabel>
         <InputGroup className={errors.email ? "border-destructive" : undefined}>
           <InputGroupAddon>
             <MailIcon className="h-4 w-4" />
@@ -54,7 +64,7 @@ export function LoginForm() {
           <InputGroupInput
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder={copy.emailPlaceholder}
             autoComplete="email"
             {...register("email")}
           />
@@ -63,7 +73,7 @@ export function LoginForm() {
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="password">Password</FieldLabel>
+        <FieldLabel htmlFor="password">{copy.passwordLabel}</FieldLabel>
         <InputGroup
           className={errors.password ? "border-destructive" : undefined}
         >
@@ -73,7 +83,7 @@ export function LoginForm() {
           <InputGroupInput
             id="password"
             type={isPasswordVisible ? "text" : "password"}
-            placeholder="Enter your password"
+            placeholder={copy.passwordPlaceholder}
             autoComplete="current-password"
             {...register("password")}
           />
@@ -102,12 +112,12 @@ export function LoginForm() {
         className="w-full my-4"
         disabled={isSubmitting || loginMutation.isPending}
       >
-        {isSubmitting || loginMutation.isPending ? "Signing in..." : "Get started"}
+        {isSubmitting || loginMutation.isPending ? copy.signingIn : copy.getStarted}
       </Button>
       <p className="text-sm text-muted-foreground">
-        Dont have an account?{" "}
-        <Link href="/register" className="underline">
-          Sign up
+        {copy.dontHaveAccount}{" "}
+        <Link href={`/${locale}/register`} className="underline">
+          {copy.signUp}
         </Link>
       </p>
     </form>

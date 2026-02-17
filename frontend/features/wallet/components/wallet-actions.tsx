@@ -16,7 +16,21 @@ import {
 import { AddFundsForm, WithdrawFundsForm } from "./wallet-forms";
 import { walletQueryKeys } from "../hooks/use-wallet-transaction";
 
-export function WalletActions() {
+type WalletActionCopy = {
+  addFunds: string;
+  addFundsTitle: string;
+  addFundsDescription: string;
+  withdraw: string;
+  withdrawTitle: string;
+  withdrawDescription: string;
+  amountLabel: string;
+  descriptionLabel: string;
+  optionalDescriptionPlaceholder: string;
+  addingFunds: string;
+  withdrawing: string;
+};
+
+export function WalletActions({ copy }: { copy: WalletActionCopy }) {
   const queryClient = useQueryClient();
 
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -38,18 +52,18 @@ export function WalletActions() {
         <DialogTrigger asChild>
           <Button className="gap-2 " type="button">
             <Plus className="h-4 w-4" />
-            Add funds
+            {copy.addFunds}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Add funds to your wallet</DialogTitle>
+            <DialogTitle>{copy.addFundsTitle}</DialogTitle>
             <DialogDescription>
-              Enter the amount you want to add to your wallet.
+              {copy.addFundsDescription}
             </DialogDescription>
           </DialogHeader>
 
-          <AddFundsForm onSuccess={() => handleSuccess("CREDIT")} />
+          <AddFundsForm copy={copy} onSuccess={() => handleSuccess("CREDIT")} />
         </DialogContent>
       </Dialog>
 
@@ -58,18 +72,18 @@ export function WalletActions() {
         <DialogTrigger asChild>
           <Button className="gap-2" variant="outline" type="button">
             <Minus className="h-4 w-4" />
-            Withdraw
+            {copy.withdraw}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Withdraw from your wallet</DialogTitle>
+            <DialogTitle>{copy.withdrawTitle}</DialogTitle>
             <DialogDescription>
-              Enter the amount you want to withdraw from your wallet.
+              {copy.withdrawDescription}
             </DialogDescription>
           </DialogHeader>
 
-          <WithdrawFundsForm onSuccess={() => handleSuccess("DEBIT")} />
+          <WithdrawFundsForm copy={copy} onSuccess={() => handleSuccess("DEBIT")} />
         </DialogContent>
       </Dialog>
     </div>

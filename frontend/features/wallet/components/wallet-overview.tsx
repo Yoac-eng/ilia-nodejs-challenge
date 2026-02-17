@@ -32,6 +32,33 @@ import {
 type WalletOverviewProps = {
   initialBalance: WalletBalance;
   initialTransactions: WalletTransaction[];
+  copy: {
+    title: string;
+    availableBalance: string;
+    activitiesTitle: string;
+    activitiesDescription: string;
+    filterByType: string;
+    all: string;
+    credit: string;
+    debit: string;
+    descriptionHeader: string;
+    typeHeader: string;
+    dateHeader: string;
+    amountHeader: string;
+    empty: string;
+    fallbackDescription: string;
+    addFunds: string;
+    addFundsTitle: string;
+    addFundsDescription: string;
+    withdraw: string;
+    withdrawTitle: string;
+    withdrawDescription: string;
+    amountLabel: string;
+    descriptionLabel: string;
+    optionalDescriptionPlaceholder: string;
+    addingFunds: string;
+    withdrawing: string;
+  };
 };
 
 function dollarsFromCents(value: number): number {
@@ -41,6 +68,7 @@ function dollarsFromCents(value: number): number {
 export function WalletOverview({
   initialBalance,
   initialTransactions,
+  copy,
 }: WalletOverviewProps) {
   const [transactionsFilter, setTransactionsFilter] = useState<TransactionType | "ALL">("ALL");
   const balanceQuery = useWalletBalanceQuery(initialBalance);
@@ -60,8 +88,8 @@ export function WalletOverview({
       <Card className="border-primary/20 bg-linear-to-br from-primary/15 via-background to-accent/10">
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
-            <CardTitle className="text-2xl">Wallet</CardTitle>
-            <CardDescription className="mt-2">Available balance</CardDescription>
+            <CardTitle className="text-2xl">{copy.title}</CardTitle>
+            <CardDescription className="mt-2">{copy.availableBalance}</CardDescription>
             {balanceQuery.isFetching ? (
               <Skeleton className="h-8 w-24" />
             ) : (
@@ -74,7 +102,7 @@ export function WalletOverview({
             )}
           </div>
 
-          <WalletActions />
+          <WalletActions copy={copy} />
         </CardHeader>
       </Card>
 
@@ -83,22 +111,22 @@ export function WalletOverview({
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <CardTitle>Account Activities</CardTitle>
-                <CardDescription>Latest transactions</CardDescription>
+                <CardTitle>{copy.activitiesTitle}</CardTitle>
+                <CardDescription>{copy.activitiesDescription}</CardDescription>
               </div>
               <Select
                 value={transactionsFilter}
                 onValueChange={(value) => setTransactionsFilter(value as TransactionType | "ALL")}
               >
                 <SelectTrigger className="w-full max-w-48">
-                  <SelectValue placeholder="Filter by type" />
+                  <SelectValue placeholder={copy.filterByType} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Filter by type</SelectLabel>
-                    <SelectItem value="ALL">All</SelectItem>
-                    <SelectItem value="CREDIT">Credit</SelectItem>
-                    <SelectItem value="DEBIT">Debit</SelectItem>
+                    <SelectLabel>{copy.filterByType}</SelectLabel>
+                    <SelectItem value="ALL">{copy.all}</SelectItem>
+                    <SelectItem value="CREDIT">{copy.credit}</SelectItem>
+                    <SelectItem value="DEBIT">{copy.debit}</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -110,17 +138,17 @@ export function WalletOverview({
               <p className="text-sm text-destructive">{transactionsQuery.error.message}</p>
             )}
             {!isTransactionsLoading && !transactionsQuery.error && transactions.length === 0 && (
-              <p className="text-sm text-muted-foreground">No transactions yet.</p>
+              <p className="text-sm text-muted-foreground">{copy.empty}</p>
             )}
             {!isTransactionsLoading && transactions.length > 0 && (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="text-muted-foreground">
                     <tr className="border-b">
-                      <th className="px-2 py-2 font-medium">Description</th>
-                      <th className="px-2 py-2 font-medium">Type</th>
-                      <th className="px-2 py-2 font-medium">Date</th>
-                      <th className="px-2 py-2 text-right font-medium">Amount</th>
+                      <th className="px-2 py-2 font-medium">{copy.descriptionHeader}</th>
+                      <th className="px-2 py-2 font-medium">{copy.typeHeader}</th>
+                      <th className="px-2 py-2 font-medium">{copy.dateHeader}</th>
+                      <th className="px-2 py-2 text-right font-medium">{copy.amountHeader}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -129,7 +157,7 @@ export function WalletOverview({
                       return (
                         <tr key={transaction.id} className="border-b last:border-0">
                           <td className="px-2 py-3">
-                            {transaction.description?.trim() || "Transaction"}
+                            {transaction.description?.trim() || copy.fallbackDescription}
                           </td>
                           <td className="px-2 py-3 capitalize">{transaction.type}</td>
                           <td className="px-2 py-3 text-muted-foreground">
