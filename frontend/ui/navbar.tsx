@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LanguagesIcon, MoonIcon, SunIcon, WalletIcon } from "lucide-react";
 
 import { toLocale } from "@/lib/i18n";
+import { useThemeStore } from "@/lib/theme-store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import {
@@ -49,32 +49,11 @@ export function Navbar({ locale, copy }: { locale: string; copy: NavbarCopy }) {
   const router = useRouter();
   const normalizedLocale = toLocale(locale) ?? "en";
   const { status } = useSession();
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") {
-      return "dark";
-    }
-
-    const storedTheme = window.localStorage.getItem("theme");
-    if (storedTheme === "light" || storedTheme === "dark") {
-      return storedTheme;
-    }
-
-    return document.documentElement.classList.contains("dark") ? "dark" : "light";
-  });
+  const { theme, toggleTheme } = useThemeStore();
   const isAuthenticated = status === "authenticated";
   const pathWithoutLocale = pathname.replace(/^\/(en|pt-br)(?=\/|$)/i, "") || "/";
   const isAuthPage =
     pathWithoutLocale === "/login" || pathWithoutLocale === "/register";
-
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle("dark", theme === "dark");
-    window.localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  function toggleTheme() {
-    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
-  }
 
   return (
     <div className="fixed left-1/2 top-4 z-50 w-[calc(100vw-2rem)] max-w-3xl -translate-x-1/2">

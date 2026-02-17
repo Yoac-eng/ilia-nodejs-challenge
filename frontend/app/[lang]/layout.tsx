@@ -8,6 +8,7 @@ import { toLocale } from "@/lib/i18n";
 import { QueryProvider } from "@/providers/query-provider";
 import { SessionProvider } from "next-auth/react";
 import { SonnerProvider } from "@/providers/sonner-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 import { Navbar } from "@/ui/navbar";
 
 const geistSans = Geist({
@@ -48,9 +49,11 @@ export default async function LocaleLayout({
       >
         <QueryProvider>
           <SessionProvider>
-            <Navbar locale={locale} copy={dict.navbar} />
-            {children}
-            <SonnerProvider />
+            <ThemeProvider>
+              <Navbar locale={locale} copy={dict.navbar} />
+              {children}
+              <SonnerProvider />
+            </ThemeProvider>
           </SessionProvider>
         </QueryProvider>
       </body>

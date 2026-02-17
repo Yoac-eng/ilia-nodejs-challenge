@@ -167,6 +167,12 @@ type NavigationMenuLinkProps = Omit<React.ComponentProps<"a">, "children"> & {
   children?: React.ReactNode;
 };
 
+function isElementWithClassName(
+  node: React.ReactNode
+): node is React.ReactElement<{ className?: string }> {
+  return React.isValidElement(node);
+}
+
 export function NavigationMenuLink({
   className,
   asChild,
@@ -179,15 +185,15 @@ export function NavigationMenuLink({
     "hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
   );
 
-  if (render && React.isValidElement(render)) {
+  if (isElementWithClassName(render)) {
     return React.cloneElement(render, {
-      className: cn(base, (render.props as { className?: string }).className, className),
+      className: cn(base, render.props.className, className),
     });
   }
 
-  if (asChild && React.isValidElement(children)) {
+  if (asChild && isElementWithClassName(children)) {
     return React.cloneElement(children, {
-      className: cn(base, (children.props as { className?: string }).className, className),
+      className: cn(base, children.props.className, className),
     });
   }
 
