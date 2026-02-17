@@ -19,6 +19,15 @@ import {
 import { TransactionType, WalletBalance, WalletTransaction } from "../types/wallet";
 import { SkeletonTable } from "@/ui/skeletonTable";
 import { Skeleton } from "@/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
 
 type WalletOverviewProps = {
   initialBalance: WalletBalance;
@@ -77,18 +86,22 @@ export function WalletOverview({
                 <CardTitle>Account Activities</CardTitle>
                 <CardDescription>Latest transactions</CardDescription>
               </div>
-              <select
-                aria-label="Filter transactions by type"
-                className="h-9 rounded-md border bg-background px-3 text-sm"
+              <Select
                 value={transactionsFilter}
-                onChange={(event) =>
-                  setTransactionsFilter(event.target.value as TransactionType | "ALL")
-                }
+                onValueChange={(value) => setTransactionsFilter(value as TransactionType | "ALL")}
               >
-                <option value="ALL">All</option>
-                <option value="CREDIT">Credit</option>
-                <option value="DEBIT">Debit</option>
-              </select>
+                <SelectTrigger className="w-full max-w-48">
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Filter by type</SelectLabel>
+                    <SelectItem value="ALL">All</SelectItem>
+                    <SelectItem value="CREDIT">Credit</SelectItem>
+                    <SelectItem value="DEBIT">Debit</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
           </CardHeader>
           <CardContent>
