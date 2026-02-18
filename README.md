@@ -1,89 +1,203 @@
-# ília - Code Challenge NodeJS
-**English**
-##### Before we start ⚠️
-**Please create a fork from this repository**
+# ilia - Fullstack NodeJs Challenge Solution made by Yoac-Eng
 
-## The Challenge:
-One of the ília Digital verticals is Financial and to level your knowledge we will do a Basic Financial Application and for that we divided this Challenge in 2 Parts.
+Fullstack solution for the ilia challenge that consists in 2 services and 1 frontend within this monorepo(kept for challenge avaliation porpuses):
 
-The first part is mandatory, which is to create a Wallet microservice to store the users' transactions, the second part is optional (*for Seniors, it's mandatory*) which is to create a Users Microservice with integration between the two microservices (Wallet and Users), using internal communications between them, that can be done in any of the following strategies: gRPC, REST, Kafka or via Messaging Queues and this communication must have a different security of the external application (JWT, SSL, ...), **Development in javascript (Node) is required.**
-
-![diagram](diagram.png)
-
-### General Instructions:
-## Part 1 - Wallet Microservice
-
-This microservice must be a digital Wallet where the user transactions will be stored 
-
-### The Application must have
-
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.
-    - Have a dedicated database (Postgres, MySQL, Mongo, DynamoDB, ...).
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Configure the Microservice port to 3001. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a team work and not just a commit.
-
-## Part 2 - Microservice Users and Wallet Integration
-
-### The Application must have:
-
-    - Project setup documentation (readme.md).
-    - Application and Database running on a container (Docker, ...).
-    - This Microservice must receive HTTP Request.   
-    - Have a dedicated database(Postgres, MySQL, Mongo, DynamoDB...), you may use an Auth service like AWS Cognito.
-    - JWT authentication on all routes (endpoints) the PrivateKey must be ILIACHALLENGE (passed by env var).
-    - Set the Microservice port to 3002. 
-    - Gitflow applied with Code Review in each step, open a feature/branch, create at least one pull request and merge it with Main(master deprecated), this step is important to simulate a teamwork and not just a commit.
-    - Internal Communication Security (JWT, SSL, ...), if it is JWT the PrivateKey must be ILIACHALLENGE_INTERNAL (passed by env var).
-    - Communication between Microservices using any of the following: gRPC, REST, Kafka or via Messaging Queues (update your readme with the instructions to run if using a Docker/Container environment).
-
-## Part 3 - Frontend Implementation - Fullstack candidates only
-
-In this challenge, you will build the frontend application for a FinTech Wallet platform, integrating with the backend microservices provided in the Node.js challenge.
-
-The application must allow users to authenticate, view their wallet balance, list transactions, and create credit or debit operations. The goal is to evaluate your ability to design a modern, secure, and well-structured UI that consumes microservice APIs, handles authentication via JWT, and provides a solid user experience with proper loading, error, and empty states.
-
-You may implement the solution using React, Vue, or Angular, following the required stack for the position you're running for and best practices outlined in the challenge.
-
-### Before you start ⚠️
-
-- **Create a separate folder for the Frontend project**
-- Frontend must be built in **Typescript**.  
-- The goal is to deliver a production-like UI that consumes the backend services:
-  - Wallet Service (port **3001**)
-  - Users Service (port **3002**, optional but mandatory for Senior)
-
-### Challenge Overview
-
-You will build a **web application** that allows a user to:
-
-- Authenticate (if Users service exists)
-- View wallet balance
-- List transactions
-- Create transactions (credit/debit)
-- Handle loading, empty, and error states properly
-
-### Design Guidelines
-
-No visual prototype or UI mockups will be provided for this challenge on purpose. This is intentional so we can evaluate your product sense, design judgment, and ability to translate business requirements into a coherent user experience. You should focus on creating a clean, modern, and intuitive interface that prioritizes usability and clarity of financial information. Pay special attention to information hierarchy (for example, making balance visibility prominent), form usability and validation, transaction readability, and clear feedback for system states such as loading, success, and errors. Consistency in layout, spacing, typography, and component reuse is important, as well as responsiveness and accessibility basics. *We are not evaluating graphic design skills*, but rather your ability to craft a professional, production-ready UI that engineers and users would find reliable and easy to use.
-
-Feel free to leverage on any opensource components library.
-
-### Requirements 
-This frontend should reflect real-world practices:
-- secure JWT handling
-- clean UX flows
-- robust API integration
-- scalable component structure
-- test coverage where it matters
-- supports i18n
-- responsive design (supporting mobile browser)
-
-#### In the end, send us your fork repo updated. As soon as you finish, please let us know.
-
-#### We are available to answer any questions.
+- `users` microservice (NestJS + Prisma + PostgreSQL) on port `3002`
+- `transactions` microservice (NestJS + Prisma + PostgreSQL) on port `3001`
+- Next.js frontend (TypeScript + Tailwind + shadcn/ui) on port `3000`
 
 
-Happy coding! 🤓
+<!-- ![diagram](diagram.png) -->
+
+## 📍 Table of Contents
+- [Tech Stack](#tech-stack)
+- [How to Run (Docker)](#run-with-docker-compose)
+- [Environment Variables](#environment-variables)
+- [API Overview](#api-overview)
+- [Testing](#running-tests)
+- [Security Model](#security-model)
+- [Frontend Overview](#frontend-features)
+
+## Monorepo Structure
+
+```text
+.
+├── backend
+│   ├── apps/users
+│   └── apps/transactions
+├── frontend
+└── docker-compose.yml
+```
+
+## Tech Stack
+
+- Backend: Node.js, NestJS, Prisma, PostgreSQL
+- Frontend: Next.js (App Router), TypeScript, NextAuth, TanStack Query, Tailwind CSS, shadcn/ui
+- Infra: Docker, Docker Compose
+- Validation: Zod
+
+![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![NestJS](https://img.shields.io/badge/NestJS-10-red)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+## Services and Ports
+
+- Frontend: `http://localhost:3000`
+- Users API: `http://localhost:3002`
+- Transactions API (Wallet): `http://localhost:3001`
+
+## Run with Docker Compose
+### Note: In here the docker compose has enough env variables fallbacks to be able to run without .env configuration, but that wouldnt be possible in a production/homolog scenario.
+
+From repository root:
+
+```bash
+docker compose up --build -d
+```
+
+This starts:
+- frontend (`3000`)
+- users-service (`3002`)
+- transactions-service (`3001`)
+- postgres-users (`5432`)
+- postgres-transactions (`5433`)
+
+To stop:
+
+```bash
+docker compose down
+```
+
+## Environment Variables
+### Note: In a production scenario envs wouldnt be set here (only a .env.example), this is only for development/challenge test porpuse.
+
+If you want to run the project locally, create a `.env` at repository root (used by Docker Compose) and configure:
+
+```env
+NODE_ENV=development
+
+# challenge-required secrets (optional in compose, defaults are already set)
+JWT_SECRET=ILIACHALLENGE
+INTERNAL_JWT_SECRET=ILIACHALLENGE_INTERNAL
+
+# database (docker defaults can be kept)
+POSTGRES_USER=ilia
+POSTGRES_PASSWORD=ilia123
+POSTGRES_DB_USERS=ilia_users
+POSTGRES_DB_TRANSACTIONS=ilia_transactions
+POSTGRES_USERS_PORT=5432
+POSTGRES_TRANSACTIONS_PORT=5433
+
+# app ports
+USERS_PORT=3002
+TRANSACTIONS_PORT=3001
+
+# frontend browser/auth urls
+NEXTAUTH_URL=http://localhost:3000
+AUTH_URL=http://localhost:3000
+AUTH_SECRET=
+```
+
+In Docker Compose, `USERS_DATABASE_URL` and `TRANSACTIONS_DATABASE_URL` are assembled automatically from Postgres variables.
+
+When running locally (without Docker), use:
+
+```env
+USERS_DATABASE_URL=postgresql://ilia:ilia123@localhost:5432/ilia_users
+TRANSACTIONS_DATABASE_URL=postgresql://ilia:ilia123@localhost:5433/ilia_transactions
+USERS_SERVICE_URL=http://localhost:3002
+```
+
+## Run Locally (without Docker)
+
+### 1) Backend
+
+```bash
+cd backend
+pnpm install
+```
+
+Run migrations:
+
+```bash
+pnpm db:users:migrate:dev
+pnpm db:transactions:migrate:dev
+```
+
+Start services in separate terminals:
+
+```bash
+pnpm start:dev:users
+pnpm start:dev:transactions
+```
+
+### 2) Frontend
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+## 🧪 Running Tests
+
+### Backend (both user and transaction services)
+```bash
+cd backend
+pnpm test          # Unit tests
+pnpm test:e2e      # End-to-end tests
+```
+
+## API Overview
+
+### Users service (`3002`)
+
+- `POST /users` (public): register user
+- `POST /auth` (public): authenticate user
+- `GET /users` (protected)
+- `GET /users/:id` (protected)
+- `PATCH /users/:id` (protected)
+- `DELETE /users/:id` (protected)
+- `GET /users/:id/exists` (internal token only)
+
+### Transactions service (`3001`)
+
+- `GET /balance` (protected)
+- `GET /transactions` (protected)
+- `POST /transactions` (protected)
+  - validates body `user_id` matches authenticated token `sub`
+
+## Security Model
+
+- All non-public routes use JWT auth.
+- External auth secret: `JWT_SECRET`.
+- Internal service-to-service auth secret: `INTERNAL_JWT_SECRET`.
+- Users endpoint `GET /users/:id/exists` is internal-only.
+- Transactions service signs internal token when calling users service.
+
+## Frontend Features
+
+- Authentication (register/login/logout)
+- Wallet balance display
+- Transaction list with filtering
+- Credit and debit operations
+- Loading, empty, and error states
+- i18n support (`en`, `pt-br`)
+- Responsive layout
+
+## Manual Verification Flow
+
+1. Register a new user from frontend.
+2. Login and confirm session starts.
+3. Open wallet page and confirm balance endpoint works.
+4. Create a credit transaction.
+5. Create a debit transaction.
+6. Confirm transactions list and updated balance.
+7. Switch language and verify UI translations.
+
+## Notes
+
+- A single global README is used to document all services and frontend, but this could be split to every service and frontend having their own readme.
+
+# And thanks for the opportunity :)
