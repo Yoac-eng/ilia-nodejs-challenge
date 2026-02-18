@@ -60,7 +60,7 @@ services:
   # Users Microservice
   users-service:
     build:
-      context: ./backend/apps/users
+      context: ./backend
       dockerfile: apps/users/Dockerfile
     container_name: ilia-users-service
     environment:
@@ -79,7 +79,7 @@ services:
   # Transactions Microservice
   transactions-service:
     build:
-      context: ./backend/apps/transactions
+      context: ./backend
       dockerfile: apps/transactions/Dockerfile
     container_name: ilia-transactions-service
     environment:
