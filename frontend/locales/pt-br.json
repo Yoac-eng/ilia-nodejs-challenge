@@ -1,0 +1,95 @@
+{
+  "auth": {
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "loginTitle": "Entre com seu email",
+    "loginSubtitle": "Gerencie sua carteira com facilidade, transacoes sem complicacao. Gratis.",
+    "registerTitle": "Crie uma conta",
+    "registerSubtitle": "Crie sua carteira em minutos. Sem cartao de credito.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Digite seu email",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "Digite sua senha",
+    "signingIn": "Entrando...",
+    "getStarted": "Comecar",
+    "dontHaveAccount": "Nao tem conta?",
+    "signUp": "Cadastre-se",
+    "firstNameLabel": "Nome",
+    "firstNamePlaceholder": "Digite seu nome",
+    "lastNameLabel": "Sobrenome",
+    "lastNamePlaceholder": "Digite seu sobrenome",
+    "createPasswordPlaceholder": "Crie uma senha",
+    "confirmPasswordLabel": "Confirmar senha",
+    "confirmPasswordPlaceholder": "Confirme sua senha",
+    "creatingAccount": "Criando conta...",
+    "alreadyHaveAccount": "Ja tem conta?",
+    "signIn": "Entrar",
+    "accountCreatedTitle": "Conta criada",
+    "accountCreatedDescription": "Agora voce pode entrar com sua nova conta."
+  },
+  "dashboard": {
+    "title": "Painel",
+    "balance": "Saldo Atual"
+  },
+  "home": {
+    "eyebrow": "Carteira da nova geração",
+    "titleLine1": "Transferencias de",
+    "titlePrefix": "fundos",
+    "titleHighlight": "facilitadas.",
+    "subtitle": "Gerencie seus fundos com facilidade. Gratuitamente.",
+    "startNow": "Gerenciar minha carteira agora",
+    "learnMore": "Saiba mais",
+    "heroAlt": "Paisagem de montanha ao entardecer",
+    "stats": {
+      "processed": "Processado",
+      "countries": "Paises",
+      "uptime": "Disponibilidade"
+    },
+    "features": {
+      "instantTransfersTitle": "Transferencias instantaneas",
+      "instantTransfersDesc": "Os fundos chegam em segundos, nao em dias. Liquidacao em tempo real no mundo todo.",
+      "securityTitle": "Seguranca de nivel bancario",
+      "securityDesc": "Criptografia ponta a ponta com deteccao de fraude em cada transacao.",
+      "globalCoverageTitle": "Cobertura global",
+      "globalCoverageDesc": "Aceite mais de 135 moedas em mais de 150 paises com metodos de pagamento locais."
+    }
+  },
+  "navbar": {
+    "appName": "Illia Wallet",
+    "home": "Inicio",
+    "wallet": "Carteira",
+    "language": "Idioma",
+    "menu": "Menu",
+    "signOut": "Sair",
+    "signInPrompt": "Entre para ver os links da carteira."
+  },
+  "wallet": {
+    "title": "Carteira",
+    "availableBalance": "Saldo disponivel",
+    "updatingBalance": "Atualizando saldo...",
+    "activitiesTitle": "Atividades da conta",
+    "activitiesDescription": "Ultimas transacoes",
+    "filterByType": "Filtrar por tipo",
+    "all": "Todos",
+    "credit": "Credito",
+    "debit": "Debito",
+    "descriptionHeader": "Descricao",
+    "typeHeader": "Tipo",
+    "dateHeader": "Data",
+    "amountHeader": "Valor",
+    "empty": "Nenhuma transacao ainda.",
+    "fallbackDescription": "Transacao",
+    "addFunds": "Adicionar fundos",
+    "addFundsTitle": "Adicione fundos na sua carteira",
+    "addFundsDescription": "Informe o valor que deseja adicionar na sua carteira.",
+    "withdraw": "Sacar",
+    "withdrawTitle": "Sacar da sua carteira",
+    "withdrawDescription": "Informe o valor que deseja sacar da sua carteira.",
+    "amountLabel": "Valor",
+    "descriptionLabel": "Descricao",
+    "optionalDescriptionPlaceholder": "Descricao opcional",
+    "addingFunds": "Adicionando fundos...",
+    "withdrawing": "Sacando..."
+  }
+}
+

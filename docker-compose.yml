@@ -1,0 +1,128 @@
+services:
+  # PostgreSQL for Users Service
+  postgres-users:
+    image: postgres:16-alpine
+    container_name: ilia-postgres-users
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ilia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ilia123}
+      POSTGRES_DB: ${POSTGRES_DB_USERS:-ilia_users}
+    ports:
+      - "${POSTGRES_USERS_PORT:-5432}:5432"
+    volumes:
+      - postgres-users-data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+
+  # PostgreSQL for Transactions Service
+  postgres-transactions:
+    image: postgres:16-alpine
+    container_name: ilia-postgres-transactions
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ilia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ilia123}
+      POSTGRES_DB: ${POSTGRES_DB_TRANSACTIONS:-ilia_transactions}
+    ports:
+      - "${POSTGRES_TRANSACTIONS_PORT:-5433}:5432"
+    volumes:
+      - postgres-transactions-data:/var/lib/postgresql/data
+    networks:
+      - ilia-network
+
+  # Redis Cache
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: ilia-redis
+  #   ports:
+  #     - "${REDIS_PORT:-6379}:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   networks:
+  #     - ilia-network
+
+  # RabbitMQ Message Broker
+  # rabbitmq:
+  #   image: rabbitmq:3-management-alpine
+  #   container_name: ilia-rabbitmq
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-ilia}
+  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-ilia123}
+  #   ports:
+  #     - "${RABBITMQ_AMQP_PORT:-5672}:5672"   # AMQP port
+  #     - "${RABBITMQ_MGMT_PORT:-15672}:15672" # Management UI
+  #   volumes:
+  #     - rabbitmq-data:/var/lib/rabbitmq
+  #   networks:
+  #     - ilia-network
+
+  # Users Microservice
+  users-service:
+    build:
+      context: ./backend
+      dockerfile: apps/users/Dockerfile
+    container_name: ilia-users-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      port: ${USERS_PORT:-3002}
+      USERS_DATABASE_URL: postgresql://${POSTGRES_USER:-ilia}:${POSTGRES_PASSWORD:-ilia123}@postgres-users:5432/${POSTGRES_DB_USERS:-ilia_users}
+      JWT_SECRET: ${JWT_SECRET:-ILIACHALLENGE}
+      INTERNAL_JWT_SECRET: ${INTERNAL_JWT_SECRET:-ILIACHALLENGE_INTERNAL}
+    ports:
+      - "${USERS_PORT:-3002}:3002"
+    networks:
+      - ilia-network
+    depends_on:
+      - postgres-users
+
+  # Transactions Microservice
+  transactions-service:
+    build:
+      context: ./backend
+      dockerfile: apps/transactions/Dockerfile
+    container_name: ilia-transactions-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      port: ${TRANSACTIONS_PORT:-3001}
+      TRANSACTIONS_DATABASE_URL: postgresql://${POSTGRES_USER:-ilia}:${POSTGRES_PASSWORD:-ilia123}@postgres-transactions:5432/${POSTGRES_DB_TRANSACTIONS:-ilia_transactions}
+      USERS_SERVICE_URL: http://users-service:3002
+      JWT_SECRET: ${JWT_SECRET:-ILIACHALLENGE}
+      INTERNAL_JWT_SECRET: ${INTERNAL_JWT_SECRET:-ILIACHALLENGE_INTERNAL}
+    ports:
+      - "${TRANSACTIONS_PORT:-3001}:3001"
+    networks:
+      - ilia-network
+    depends_on:
+      - postgres-transactions
+      - users-service
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ilia-frontend
+    environment:
+      NODE_ENV: development
+      USERS_API_URL: http://users-service:3002
+      WALLET_API_URL: http://transactions-service:3001
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_SECRET: ${AUTH_SECRET:-FRONTEND_AUTH_SECRET}
+    ports:
+      - "3000:3000"
+    networks:
+      - ilia-network
+    depends_on:
+      - users-service
+      - transactions-service
+
+networks:
+  ilia-network:
+    driver: bridge
+    name: ilia-network
+
+volumes:
+  postgres-users-data:
+    name: ilia-postgres-users-data
+  postgres-transactions-data:
+    name: ilia-postgres-transactions-data
