@@ -6,6 +6,7 @@ import { UpdateUserUseCase } from '../../src/application/useCases/update-user.us
 import { User } from '../../src/domain/entities/user.entity';
 import { EntityNotFoundError } from '../../src/domain/errors/entity-not-found.error';
 import { Email } from '../../src/domain/value-objects/email.value-object';
+import { toSnakeCaseDeep } from '../../src/common/utils/case.util';
 
 import { UsersController } from '../../src/controllers/users.controller';
 
@@ -59,7 +60,7 @@ describe('UsersController', () => {
       email: 'john@example.com',
       password: 'secret',
     });
-    expect(result).toEqual(user.toJson());
+    expect(toSnakeCaseDeep(result)).toEqual(toSnakeCaseDeep(user.toJson()));
   });
 
   it('returns all users serialized', async () => {
@@ -68,7 +69,7 @@ describe('UsersController', () => {
     const result = await controller.getAllUsers();
 
     expect(getAllUsersUseCase.execute).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([user.toJson()]);
+    expect(toSnakeCaseDeep(result)).toEqual(toSnakeCaseDeep([user.toJson()]));
   });
 
   it('gets user by id', async () => {
@@ -77,7 +78,7 @@ describe('UsersController', () => {
     const result = await controller.getUserById('user-id');
 
     expect(getUserByIdUseCase.execute).toHaveBeenCalledWith({ id: 'user-id' });
-    expect(result).toEqual(user.toJson());
+    expect(toSnakeCaseDeep(result)).toEqual(toSnakeCaseDeep(user.toJson()));
   });
 
   it('updates user by id', async () => {
@@ -89,7 +90,7 @@ describe('UsersController', () => {
       id: 'user-id',
       firstName: 'John',
     });
-    expect(result).toEqual(user.toJson());
+    expect(toSnakeCaseDeep(result)).toEqual(toSnakeCaseDeep(user.toJson()));
   });
 
   it('deletes user by id', async () => {

@@ -1,6 +1,7 @@
 import { AuthenticateUserUseCase } from '../../src/application/useCases/authenticate-user.use-case';
 import { User } from '../../src/domain/entities/user.entity';
 import { Email } from '../../src/domain/value-objects/email.value-object';
+import { toSnakeCaseDeep } from '../../src/common/utils/case.util';
 
 import { AuthController } from '../../src/controllers/auth.controller';
 
@@ -35,8 +36,8 @@ describe('AuthController', () => {
       email: 'john@example.com',
       password: 'secret',
     });
-    expect(result).toEqual({
-      user: user.toJson(),
+    expect(toSnakeCaseDeep(result)).toEqual({
+      user: toSnakeCaseDeep(user.toJson()),
       access_token: 'token-123',
     });
   });

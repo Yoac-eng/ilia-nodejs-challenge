@@ -1,6 +1,7 @@
 import "server-only";
 
 import { auth } from "@/auth";
+import { toCamelCaseDeep } from "@/lib/case-conversion";
 import { WalletBalance, WalletTransaction } from "../types/wallet";
 
 const walletApiBaseUrl =
@@ -17,7 +18,8 @@ async function parseJson(response: Response): Promise<unknown> {
   }
 
   try {
-    return (await response.json()) as unknown;
+    const rawPayload = (await response.json()) as unknown;
+    return toCamelCaseDeep(rawPayload);
   } catch {
     return undefined;
   }

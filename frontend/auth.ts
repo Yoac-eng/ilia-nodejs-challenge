@@ -24,13 +24,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const data = await res.json();
 
-          if (res.ok && data?.access_token && data?.user?.id) {
+          const accessToken = data?.accessToken ?? data?.access_token;
+          if (res.ok && accessToken && data?.user?.id) {
             const firstName = data.user.firstName ?? data.user.first_name ?? "";
             return {
               id: data.user.id,
               name: firstName,
               email: data.user.email,
-              accessToken: data.access_token,
+              accessToken,
             };
           }
           return null;
