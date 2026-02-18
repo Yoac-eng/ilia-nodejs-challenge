@@ -25,6 +25,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy source code
 COPY . .
 
+# Generate Prisma client for users service
+RUN pnpm exec prisma generate --schema=apps/users/prisma/schema.prisma
+
 # Build the users application
 RUN pnpm exec nest build users
 
