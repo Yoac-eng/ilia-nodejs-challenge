@@ -1,3 +1,5 @@
+import { toCamelCaseDeep } from "@/lib/case-conversion";
+
 const usersApiBaseUrl =
   process.env.USERS_API_URL ?? "http://localhost:3002";
 
@@ -23,7 +25,8 @@ async function parseBackendPayload(response: Response): Promise<unknown> {
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
     try {
-      return (await response.json()) as unknown;
+      const rawPayload = (await response.json()) as unknown;
+      return toCamelCaseDeep(rawPayload);
     } catch {
       return { message: "Invalid JSON response from users service." };
     }

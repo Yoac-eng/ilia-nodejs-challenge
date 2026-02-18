@@ -6,6 +6,7 @@ import { TransactionType } from '../../src/domain/enum/transaction-type.enum';
 import { Transaction } from '../../src/domain/entities/transaction.entity';
 import { Amount } from '../../src/domain/value-objects/amount.value-object';
 import { TransactionsController } from '../../src/controllers/transactions.controller';
+import { toSnakeCaseDeep } from '../../src/common/utils/case.util';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
@@ -61,7 +62,7 @@ describe('TransactionsController', () => {
         idempotencyKey: 'idem-1',
         description: 'salary',
       });
-      expect(output).toEqual(transaction.toJson());
+      expect(toSnakeCaseDeep(output)).toEqual(toSnakeCaseDeep(transaction.toJson()));
     });
   });
 
@@ -83,7 +84,9 @@ describe('TransactionsController', () => {
         userId: 'u-1',
         type: TransactionType.DEBIT,
       });
-      expect(output).toEqual([transaction.toJson()]);
+      expect(toSnakeCaseDeep(output)).toEqual(
+        toSnakeCaseDeep([transaction.toJson()]),
+      );
     });
   });
 });

@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 
 import { AppExceptionFilter } from './common/filter/app-exception.filter';
+import { SnakeCaseResponseInterceptor } from './common/interceptors/snake-case-response.interceptor';
 import { UsersModule } from './users.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(UsersModule);
   app.useGlobalFilters(new AppExceptionFilter());
+  app.useGlobalInterceptors(new SnakeCaseResponseInterceptor());
   app.enableCors({
     origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
