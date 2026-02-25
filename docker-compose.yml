@@ -85,6 +85,11 @@ services:
     depends_on:
       postgres-users:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3002"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   # Transactions Microservice
   transactions-service:
@@ -108,7 +113,7 @@ services:
       postgres-transactions:
         condition: service_healthy
       users-service:
-        condition: service_started
+        condition: service_healthy
 
   # Frontend
   frontend:
