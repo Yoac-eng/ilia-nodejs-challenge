@@ -37,7 +37,6 @@ export class CreateTransactionUseCase {
     return await this.transactionRepository.create(transaction);
   }
 
-  // TODO: treat race condition to avoid duplicate transactions
   async validateOperation(input: CreateTransactionInput): Promise<void> {
     const doesUserExist = await this.userProvider.verifyUserExists(
       input.userId,

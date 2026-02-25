@@ -16,70 +16,72 @@ export class PrismaTransactionRepository implements ITransactionRepository {
    * @returns The created transaction. If the operation fails, the transaction will not be created and the account balance will not be updated.
    */
   async create(transaction: Transaction): Promise<Transaction> {
-    const signedAmountCents =
-      transaction.type === TransactionType.CREDIT
-        ? transaction.amount.toRaw()
-        : -transaction.amount.toRaw();
+    return this.withSerializableOperationRetry(async () => {
+      const signedAmountCents =
+        transaction.type === TransactionType.CREDIT
+          ? transaction.amount.toRaw()
+          : -transaction.amount.toRaw();
 
-    const persisted = await prisma.$transaction(
-      async (tx) => {
-        await tx.accountBalance.upsert({
-          where: { userId: transaction.userId },
-          // if new user, create a new account balance
-          create: {
-            userId: transaction.userId,
-            balanceCents: 0n,
-            updatedAt: transaction.createdAt,
-          },
-          // if existing user, do nothing
-          update: {},
-        });
+      const persisted = await prisma.$transaction(
+        async (tx) => {
+          await tx.accountBalance.upsert({
+            where: { userId: transaction.userId },
+            // if new user, create a new account balance
+            create: {
+              userId: transaction.userId,
+              balanceCents: 0n,
+              updatedAt: transaction.createdAt,
+            },
+            // if existing user, do nothing
+            update: {},
+          });
 
-        // get the current balance while row locking - FOR UPDATE (preventing race condition)
-        const balances = await tx.$queryRaw<{ balance_cents: bigint }[]>`
-          SELECT "balance_cents"
-          FROM "account_balances"
-          WHERE "user_id" = ${transaction.userId}
-          FOR UPDATE
-        `;
+          // get the current balance while row locking - FOR UPDATE (preventing race condition)
+          const balances = await tx.$queryRaw<{ balance_cents: bigint }[]>`
+            SELECT "balance_cents"
+            FROM "account_balances"
+            WHERE "user_id" = ${transaction.userId}
+            FOR UPDATE
+          `;
 
-        const currentBalanceCents = balances[0]?.balance_cents ?? 0n;
-        const runningBalanceCents = currentBalanceCents + signedAmountCents;
+          const currentBalanceCents = balances[0]?.balance_cents ?? 0n;
+          const runningBalanceCents = currentBalanceCents + signedAmountCents;
 
-        if (runningBalanceCents < 0n) {
-          throw new InsufficientFundsError();
-        }
+          if (runningBalanceCents < 0n) {
+            throw new InsufficientFundsError();
+          }
 
-        const data = TransactionMapper.toPersistence(transaction);
-        const createdTransaction = await tx.transaction.create({ data });
+          const data = TransactionMapper.toPersistence(transaction);
+          const createdTransaction = await tx.transaction.create({ data });
 
-        await tx.ledgerEntry.create({
-          data: {
-            id: createdTransaction.id,
-            transactionId: createdTransaction.id,
-            userId: createdTransaction.userId,
-            direction: createdTransaction.type,
-            amountCents: createdTransaction.amountCents,
-            signedAmountCents,
-            runningBalanceCents,
-            createdAt: createdTransaction.createdAt,
-          },
-        });
+          await tx.ledgerEntry.create({
+            data: {
+              id: createdTransaction.id,
+              transactionId: createdTransaction.id,
+              userId: createdTransaction.userId,
+              direction: createdTransaction.type,
+              amountCents: createdTransaction.amountCents,
+              signedAmountCents,
+              runningBalanceCents,
+              createdAt: createdTransaction.createdAt,
+            },
+          });
 
-        await tx.accountBalance.update({
-          where: { userId: transaction.userId },
-          data: {
-            balanceCents: runningBalanceCents,
-            updatedAt: createdTransaction.createdAt,
-          },
-        });
+          await tx.accountBalance.update({
+            where: { userId: transaction.userId },
+            data: {
+              balanceCents: runningBalanceCents,
+              updatedAt: createdTransaction.createdAt,
+            },
+          });
 
-        return createdTransaction;
-      },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-    );
+          return createdTransaction;
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
 
-    return TransactionMapper.toDomain(persisted);
+      return TransactionMapper.toDomain(persisted);
+    });
   }
 
   async findById(id: string): Promise<Transaction | null> {
@@ -112,5 +114,24 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     });
 
     return accountBalance?.balanceCents ?? 0n;
+  }
+
+  // wrapper functions that retry the db transaction operation if it throws a SerializableError known by Prisma.
+  private async withSerializableOperationRetry<T>(
+    operation: () => Promise<T>,
+    retries = 3,
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      const isSerializableError =
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2034') ||
+        error.code === '40001';
+      if (isSerializableError && retries > 0) {
+        return this.withSerializableOperationRetry(operation, retries - 1);
+      }
+      throw error;
+    }
   }
 }
