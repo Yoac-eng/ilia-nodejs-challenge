@@ -1,17 +1,95 @@
+import { Prisma } from '@generated/clients/transactions';
 import { Injectable } from '@nestjs/common';
 
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/enum/transaction-type.enum';
+import { InsufficientFundsError } from '../../domain/errors/insufficient-funds.error';
 import type { ITransactionRepository } from '../../domain/interfaces/repositories/transaction.repository.interface';
 import { prisma } from '../lib/prisma';
 import { TransactionMapper } from '../mappers/transaction.mapper';
 
 @Injectable()
 export class PrismaTransactionRepository implements ITransactionRepository {
+  /**
+   * @param transaction - Creates a new transaction, register ledger entry and update account balance.
+   * The whole operation is atomic and will fail if the account balance is insufficient or some other error occurs.
+   * @returns The created transaction. If the operation fails, the transaction will not be created and the account balance will not be updated.
+   */
   async create(transaction: Transaction): Promise<Transaction> {
-    const data = TransactionMapper.toPersistence(transaction);
-    const persisted = await prisma.transaction.create({ data });
-    return TransactionMapper.toDomain(persisted);
+    return this.withSerializableOperationRetry(async () => {
+      const signedAmountCents =
+        transaction.type === TransactionType.CREDIT
+          ? transaction.amount.toRaw()
+          : -transaction.amount.toRaw();
+
+      const persisted = await prisma.$transaction(
+        async (tx) => {
+          // check idempotency to guarantee the same transaction is processed only once
+          if (transaction.idempotencyKey) {
+            const existing = await tx.transaction.findUnique({
+              where: { idempotencyKey: transaction.idempotencyKey },
+            });
+            if (existing) return existing;
+          }
+
+          await tx.accountBalance.upsert({
+            where: { userId: transaction.userId },
+            // if new user, create a new account balance
+            create: {
+              userId: transaction.userId,
+              balanceCents: 0n,
+              updatedAt: transaction.createdAt,
+            },
+            // if existing user, do nothing
+            update: {},
+          });
+
+          // get the current balance while row locking - FOR UPDATE (preventing race condition)
+          const balances = await tx.$queryRaw<{ balance_cents: bigint }[]>`
+            SELECT "balance_cents"
+            FROM "account_balances"
+            WHERE "user_id" = ${transaction.userId}
+            FOR UPDATE
+          `;
+
+          const currentBalanceCents = balances[0]?.balance_cents ?? 0n;
+          const runningBalanceCents = currentBalanceCents + signedAmountCents;
+
+          if (runningBalanceCents < 0n) {
+            throw new InsufficientFundsError();
+          }
+
+          const data = TransactionMapper.toPersistence(transaction);
+          const createdTransaction = await tx.transaction.create({ data });
+
+          await tx.ledgerEntry.create({
+            data: {
+              id: createdTransaction.id,
+              transactionId: createdTransaction.id,
+              userId: createdTransaction.userId,
+              direction: createdTransaction.type,
+              amountCents: createdTransaction.amountCents,
+              signedAmountCents,
+              runningBalanceCents,
+              createdAt: createdTransaction.createdAt,
+            },
+          });
+
+          await tx.accountBalance.update({
+            where: { userId: transaction.userId },
+            data: {
+              balanceCents: runningBalanceCents,
+              updatedAt: createdTransaction.createdAt,
+            },
+          });
+
+          return createdTransaction;
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+
+      return TransactionMapper.toDomain(persisted);
+    });
   }
 
   async findById(id: string): Promise<Transaction | null> {
@@ -38,29 +116,30 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async calculateBalance(userId: string): Promise<bigint> {
-    // aggregate transactions by type and sum amount of each type
-    const aggregations = await prisma.transaction.groupBy({
-      by: ['type'],
+    const accountBalance = await prisma.accountBalance.findUnique({
       where: { userId },
-      _sum: {
-        amountCents: true,
-      },
+      select: { balanceCents: true },
     });
 
-    let balance = 0n;
+    return accountBalance?.balanceCents ?? 0n;
+  }
 
-    for (const agg of aggregations) {
-      // prisma returns null if there are no transactions for that type, so default to 0n
-      const sum = agg._sum.amountCents ?? 0n;
-
-      // sum amount of each type in memory when iterating over the aggregations
-      if (agg.type === TransactionType.CREDIT) {
-        balance += sum;
-      } else if (agg.type === TransactionType.DEBIT) {
-        balance -= sum;
+  // wrapper functions that retry the db transaction operation if it throws a SerializableError known by Prisma.
+  private async withSerializableOperationRetry<T>(
+    operation: () => Promise<T>,
+    retries = 3,
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      const isSerializableError =
+        (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2034') ||
+        error.code === '40001';
+      if (isSerializableError && retries > 0) {
+        return this.withSerializableOperationRetry(operation, retries - 1);
       }
+      throw error;
     }
-
-    return balance;
   }
 }

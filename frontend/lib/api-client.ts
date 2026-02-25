@@ -6,6 +6,7 @@ type InternalRequestConfig = {
   path: string;
   method?: HttpMethod;
   body?: unknown;
+  headers?: Record<string, string>;
 };
 
 type ApiErrorPayload = {
@@ -19,6 +20,39 @@ type ApiErrorPayload = {
 };
 
 const appApi: AxiosInstance = axios.create();
+
+export async function appApiRequest<T>({
+  path,
+  method = "GET",
+  body,
+  headers,
+}: InternalRequestConfig): Promise<T> {
+  try {
+    const response = await appApi.request<T>({
+      url: path,
+      method,
+      data: body,
+      headers,
+      validateStatus: (status) => status >= 200 && status < 300,
+    });
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    return response.data as T;
+  } catch (error) {
+    const axiosError = error as AxiosError<unknown>;
+
+    if (!axiosError.response) {
+      throw new Error("Network error. Please try again.");
+    }
+
+    const status = axiosError.response.status;
+    const payload = axiosError.response.data;
+    throw new Error(toErrorMessage(status, payload));
+  }
+}
 
 function toErrorMessage(status: number, payload: unknown) {
   const fallback = `Request failed (${status})`;
@@ -44,36 +78,5 @@ function toErrorMessage(status: number, payload: unknown) {
   }
 
   return fallback;
-}
-
-export async function appApiRequest<T>({
-  path,
-  method = "GET",
-  body,
-}: InternalRequestConfig): Promise<T> {
-  try {
-    const response = await appApi.request<T>({
-      url: path,
-      method,
-      data: body,
-      validateStatus: (status) => status >= 200 && status < 300,
-    });
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return response.data as T;
-  } catch (error) {
-    const axiosError = error as AxiosError<unknown>;
-
-    if (!axiosError.response) {
-      throw new Error("Network error. Please try again.");
-    }
-
-    const status = axiosError.response.status;
-    const payload = axiosError.response.data;
-    throw new Error(toErrorMessage(status, payload));
-  }
 }
 

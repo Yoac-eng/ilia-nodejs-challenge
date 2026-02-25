@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
 import { getAuthContext, walletProxyRequest } from "../server";
 import { TransactionType } from "@/features/wallet/types/wallet";
@@ -58,6 +59,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
   }
 
+  const idempotencyKey = randomUUID();
+
   let body: CreateTransactionBody;
   try {
     body = (await request.json()) as CreateTransactionBody;
@@ -78,6 +81,7 @@ export async function POST(request: Request) {
     method: "POST",
     accessToken: authContext.accessToken,
     body: payload,
+    headers: { "x-idempotency-key": idempotencyKey },
   });
 
   return NextResponse.json(response.payload, { status: response.status });

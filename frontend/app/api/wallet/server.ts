@@ -10,6 +10,7 @@ type WalletRequestConfig = {
   accessToken: string;
   body?: unknown;
   searchParams?: URLSearchParams;
+  headers?: Record<string, string>;
 };
 
 type AuthContext = {
@@ -65,6 +66,7 @@ export async function walletProxyRequest({
   accessToken,
   body,
   searchParams,
+  headers,
 }: WalletRequestConfig): Promise<ProxyResponse> {
   try {
     const response = await fetch(buildWalletUrl(path, searchParams), {
@@ -72,6 +74,7 @@ export async function walletProxyRequest({
       headers: {
         Authorization: `Bearer ${accessToken}`,
         ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(headers ?? {}),
       },
       body: body ? JSON.stringify(body) : undefined,
       cache: "no-store",

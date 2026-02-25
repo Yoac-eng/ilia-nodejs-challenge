@@ -14,6 +14,7 @@ export const walletQueryKeys = {
 // create a new transaction on client side
 export function useCreateTransaction() {
   return useMutation({
+    retry: false,
     mutationFn: async (values: CreateTransactionInput) => {
       return appApiRequest<WalletTransaction>({
         path: "/api/wallet/transactions",

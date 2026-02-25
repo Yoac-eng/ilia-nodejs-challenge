@@ -8,8 +8,8 @@ import { CreateTransactionUseCase } from '../../../src/application/useCases/crea
 describe('CreateTransactionUseCase', () => {
   it('creates a transaction when user exists and operation is valid', async () => {
     const transactionRepository = {
-      calculateBalance: jest.fn().mockResolvedValue(1000n),
       create: jest.fn().mockImplementation(async (tx: Transaction) => tx),
+      calculateBalance: jest.fn(),
     };
     const userProvider = {
       verifyUserExists: jest.fn().mockResolvedValue(true),
@@ -28,7 +28,6 @@ describe('CreateTransactionUseCase', () => {
     });
 
     expect(userProvider.verifyUserExists).toHaveBeenCalledWith('user-id');
-    expect(transactionRepository.calculateBalance).toHaveBeenCalledWith('user-id');
     expect(transactionRepository.create).toHaveBeenCalledWith(
       expect.any(Transaction),
     );
@@ -61,8 +60,8 @@ describe('CreateTransactionUseCase', () => {
 
   it('throws for debit when funds are insufficient', async () => {
     const transactionRepository = {
-      calculateBalance: jest.fn().mockResolvedValue(50n),
-      create: jest.fn(),
+      create: jest.fn().mockRejectedValue(new InsufficientFundsError()),
+      calculateBalance: jest.fn(),
     };
     const userProvider = {
       verifyUserExists: jest.fn().mockResolvedValue(true),
@@ -79,7 +78,7 @@ describe('CreateTransactionUseCase', () => {
         amount: 100,
       }),
     ).rejects.toBeInstanceOf(InsufficientFundsError);
-    expect(transactionRepository.create).not.toHaveBeenCalled();
+    expect(transactionRepository.create).toHaveBeenCalledTimes(1);
   });
 });
 
