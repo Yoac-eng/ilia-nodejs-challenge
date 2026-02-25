@@ -149,6 +149,34 @@ pnpm test          # Unit tests
 pnpm test:e2e      # End-to-end tests
 ```
 
+### Transactions concurrency E2E (real PostgreSQL, no mocks)
+These tests validate real database concurrency guarantees (row locks / serializable tx) and **must run against a real Postgres**.
+
+Prerequisites:
+- Docker running (for Postgres)
+- `pnpm` installed locally (to run Jest/ts-jest)
+
+Run:
+```bash
+# 1) Start only the transactions database (port 5433)
+cd ..
+docker compose up -d postgres-transactions
+
+# 2) Install backend deps locally (Jest runs on host)
+cd backend
+pnpm install
+
+# 3) Generate Prisma client locally (required for TS imports under @generated/clients/*)
+pnpm db:transactions:generate
+
+# 4) Point tests to the real DB
+export TRANSACTIONS_DATABASE_URL="postgresql://ilia:ilia123@127.0.0.1:5433/ilia_transactions"
+export JWT_SECRET="ILIACHALLENGE"
+
+# 5) Run the transactions E2E suite (includes concurrency tests)
+pnpm exec jest --config apps/transactions/test/jest-e2e.json --runInBand
+```
+
 ## API Overview
 
 ### Users service (`3002`)
