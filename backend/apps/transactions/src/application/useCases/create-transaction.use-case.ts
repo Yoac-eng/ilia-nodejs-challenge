@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/enum/transaction-type.enum';
 import { EntityNotFoundError } from '../../domain/errors/entity-not-found.error';
-import { InsufficientFundsError } from '../../domain/errors/insufficient-funds.error';
 import type { IUserProvider } from '../../domain/interfaces/providers/user.provider.interface';
 import type { ITransactionRepository } from '../../domain/interfaces/repositories/transaction.repository.interface';
 import { Amount } from '../../domain/value-objects/amount.value-object';
@@ -45,15 +44,6 @@ export class CreateTransactionUseCase {
     );
     if (!doesUserExist) {
       throw new EntityNotFoundError('User');
-    }
-
-    if (input.type === TransactionType.DEBIT) {
-      const currentBalance = await this.transactionRepository.calculateBalance(
-        input.userId,
-      );
-      if (currentBalance < Amount.create(input.amount).cents) {
-        throw new InsufficientFundsError();
-      }
     }
   }
 }
