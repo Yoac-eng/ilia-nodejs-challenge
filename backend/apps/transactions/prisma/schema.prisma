@@ -13,14 +13,39 @@ enum TransactionType {
 }
 
 model Transaction {
-  id           String   @id
-  userId       String   @map("user_id") @db.VarChar
-  type         String   @map("type") @db.VarChar
-  description  String?   @map("description") @db.VarChar
-  amountCents      BigInt      @map("amount_cents") @db.BigInt
-  idempotencyKey String?  @unique @map("idempotency_key") @db.VarChar
-  createdAt    DateTime @map("created_at") @db.Timestamp
+  id             String       @id
+  userId         String       @map("user_id") @db.VarChar
+  type           String       @map("type") @db.VarChar
+  description    String?      @map("description") @db.VarChar
+  amountCents    BigInt       @map("amount_cents") @db.BigInt
+  idempotencyKey String?      @unique @map("idempotency_key") @db.VarChar
+  createdAt      DateTime     @map("created_at") @db.Timestamp
+  ledgerEntry    LedgerEntry?
 
+  @@index([userId, createdAt, id])
   @@map("transactions")
+}
+
+model LedgerEntry {
+  id                  String      @id
+  transactionId       String      @unique @map("transaction_id")
+  userId              String      @map("user_id") @db.VarChar
+  direction           String      @map("direction") @db.VarChar
+  amountCents         BigInt      @map("amount_cents") @db.BigInt
+  signedAmountCents   BigInt      @map("signed_amount_cents") @db.BigInt
+  runningBalanceCents BigInt      @map("running_balance_cents") @db.BigInt
+  createdAt           DateTime    @map("created_at") @db.Timestamp
+  transaction         Transaction @relation(fields: [transactionId], references: [id])
+
+  @@index([userId, createdAt, id])
+  @@map("ledger_entries")
+}
+
+model AccountBalance {
+  userId       String   @id @map("user_id") @db.VarChar
+  balanceCents BigInt   @map("balance_cents") @db.BigInt
+  updatedAt    DateTime @map("updated_at") @db.Timestamp
+
+  @@map("account_balances")
 }
 
