@@ -5,8 +5,7 @@ export const createTransactionHeadersSchema = z
     'x-idempotency-key': z
       .string()
       .min(1, 'Idempotency key cannot be empty')
-      .max(255, 'Idempotency key is too long')
-      .optional(),
+      .max(255, 'Idempotency key is too long'),
   })
   .loose()
   .transform((data) => ({

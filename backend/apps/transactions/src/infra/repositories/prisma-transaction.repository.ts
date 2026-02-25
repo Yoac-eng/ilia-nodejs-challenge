@@ -24,6 +24,14 @@ export class PrismaTransactionRepository implements ITransactionRepository {
 
       const persisted = await prisma.$transaction(
         async (tx) => {
+          // check idempotency to guarantee the same transaction is processed only once
+          if (transaction.idempotencyKey) {
+            const existing = await tx.transaction.findUnique({
+              where: { idempotencyKey: transaction.idempotencyKey },
+            });
+            if (existing) return existing;
+          }
+
           await tx.accountBalance.upsert({
             where: { userId: transaction.userId },
             // if new user, create a new account balance

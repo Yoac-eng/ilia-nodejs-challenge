@@ -11,7 +11,7 @@ export interface CreateTransactionInput {
   userId: string;
   type: TransactionType;
   amount: number;
-  idempotencyKey?: string;
+  idempotencyKey: string;
   description?: string;
 }
 
