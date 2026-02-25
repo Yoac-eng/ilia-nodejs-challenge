@@ -75,7 +75,7 @@ docker compose down
 If you want to run the project locally, create a `.env` at repository root (used by Docker Compose) and configure:
 
 ```env
-NODE_ENV=development
+NODE_ENV=homologation
 
 # challenge-required secrets (optional in compose, defaults are already set)
 JWT_SECRET=ILIACHALLENGE
