@@ -13,6 +13,11 @@ services:
       - postgres-users-data:/var/lib/postgresql/data
     networks:
       - ilia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ilia} -d ${POSTGRES_DB_USERS:-ilia_users}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   # PostgreSQL for Transactions Service
   postgres-transactions:
@@ -28,6 +33,11 @@ services:
       - postgres-transactions-data:/var/lib/postgresql/data
     networks:
       - ilia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ilia} -d ${POSTGRES_DB_TRANSACTIONS:-ilia_transactions}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   # Redis Cache
   # redis:
@@ -61,6 +71,7 @@ services:
       context: ./backend
       dockerfile: apps/users/Dockerfile
     container_name: ilia-users-service
+    restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       port: ${USERS_PORT:-3002}
@@ -72,7 +83,8 @@ services:
     networks:
       - ilia-network
     depends_on:
-      - postgres-users
+      postgres-users:
+        condition: service_healthy
 
   # Transactions Microservice
   transactions-service:
@@ -80,6 +92,7 @@ services:
       context: ./backend
       dockerfile: apps/transactions/Dockerfile
     container_name: ilia-transactions-service
+    restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       port: ${TRANSACTIONS_PORT:-3001}
@@ -92,8 +105,10 @@ services:
     networks:
       - ilia-network
     depends_on:
-      - postgres-transactions
-      - users-service
+      postgres-transactions:
+        condition: service_healthy
+      users-service:
+        condition: service_started
 
   # Frontend
   frontend:

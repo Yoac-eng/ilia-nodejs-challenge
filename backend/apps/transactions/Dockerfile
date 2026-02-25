@@ -39,10 +39,12 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/apps/transactions/prisma ./apps/transactions/prisma
+COPY --from=build /app/apps/transactions/prisma.config.ts ./apps/transactions/prisma.config.ts
 
 # Expose port
 EXPOSE 3001
 
 # Start application
-CMD ["node", "dist/apps/transactions/main.js"]
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy --config apps/transactions/prisma.config.ts && node dist/apps/transactions/main.js"]
 
